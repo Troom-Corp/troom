@@ -18,7 +18,10 @@ func ConvertArrayToString(data []int) string {
 	result += "{"
 	for n := range data {
 		intEl := strconv.Itoa(data[n])
-		result += intEl + ", "
+		result += intEl
+		if n != len(data)-1 {
+			result += ", "
+		}
 	}
 	result += "}"
 	return result
