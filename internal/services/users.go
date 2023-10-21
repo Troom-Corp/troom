@@ -33,7 +33,7 @@ type User struct {
 func (u User) Create() (int, error) {
 	var userId int
 	createQuery := fmt.Sprintf("INSERT INTO public.users (firstname, secondname, email, password, photo, bio, phone, links, followers, subscribers) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') RETURNING userid", u.FirstName, u.SecondName, u.Email, u.Password, u.Photo, u.Bio, u.Phone, u.Links, u.Followers, u.Subscribers)
-	rows, err := internal.Store().Query(context.Background(), createQuery)
+	rows, err := internal.Store.Query(context.Background(), createQuery)
 	rows.Scan(&userId)
 	return userId, err
 }
@@ -42,7 +42,7 @@ func (u User) Create() (int, error) {
 func (u User) ReadAll() ([]User, error) {
 	var users []User
 
-	rows, _ := internal.Store().Query(context.Background(), "SELECT * FROM public.users;")
+	rows, _ := internal.Store.Query(context.Background(), "SELECT * FROM public.users;")
 	for rows.Next() {
 		var user User
 		err := rows.Scan(&user.UserId, &user.FirstName, &user.SecondName, &user.Email, &user.Password, &user.Photo, &user.Bio, &user.Phone, &user.Links, &user.Followers, &user.Subscribers)
@@ -59,7 +59,7 @@ func (u User) ReadAll() ([]User, error) {
 func (u User) ReadById() (User, error) {
 	var user User
 	readByIdQuery := fmt.Sprintf("SELECT * FROM public.users WHERE userid=%d", u.UserId)
-	err := internal.Store().QueryRow(context.Background(), readByIdQuery).Scan(&user.UserId, &user.FirstName, &user.SecondName, &user.Email, &user.Password, &user.Photo, &user.Bio, &user.Phone, &user.Links, &user.Followers, &user.Subscribers)
+	err := internal.Store.QueryRow(context.Background(), readByIdQuery).Scan(&user.UserId, &user.FirstName, &user.SecondName, &user.Email, &user.Password, &user.Photo, &user.Bio, &user.Phone, &user.Links, &user.Followers, &user.Subscribers)
 	if err != nil {
 		return User{}, err
 	}
@@ -70,7 +70,7 @@ func (u User) SearchByQuery(searchQuery string) ([]User, error) {
 	var queryUsers []User
 	searchFormat := "%" + searchQuery + "%"
 	searchByQuery := fmt.Sprintf("SELECT * FROM public.users WHERE LOWER(firstname) LIKE '%s' OR LOWER(secondname) LIKE '%s'", searchFormat, searchFormat)
-	rows, err := internal.Store().Query(context.Background(), searchByQuery)
+	rows, err := internal.Store.Query(context.Background(), searchByQuery)
 	if err != nil {
 		return []User{}, nil
 	}
@@ -90,7 +90,7 @@ func (u User) SearchByQuery(searchQuery string) ([]User, error) {
 // Update Обновить данные пользователя по ID
 func (u User) Update() error {
 	updateByIdQuery := fmt.Sprintf("UPDATE public.users SET firstname = '%s', secondname = '%s', email = '%s', password = '%s', photo = '%s', bio = '%s', phone = '%s', links = '%s', followers = '%s', subscribers = '%s' WHERE userid = %d", u.FirstName, u.SecondName, u.Email, u.Password, u.Photo, u.Bio, u.Phone, u.Links, u.Followers, u.Subscribers, u.UserId)
-	_, err := internal.Store().Query(context.Background(), updateByIdQuery)
+	_, err := internal.Store.Query(context.Background(), updateByIdQuery)
 	if err != nil {
 		return err
 	}
@@ -100,7 +100,7 @@ func (u User) Update() error {
 // Delete Удалить все данные пользователя по ID
 func (u User) Delete() error {
 	deleteByIdQuery := fmt.Sprintf("DELETE FROM public.users WHERE userid = %d", u.UserId)
-	_, err := internal.Store().Query(context.Background(), deleteByIdQuery)
+	_, err := internal.Store.Query(context.Background(), deleteByIdQuery)
 	if err != nil {
 		return err
 	}

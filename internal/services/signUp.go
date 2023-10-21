@@ -43,7 +43,7 @@ func PasswordValidator(password string) bool {
 func (s SignUpCredentials) ValidData() error {
 	var user User
 	getUserQuery := fmt.Sprintf("SELECT * FROM public.users WHERE email='%s'", s.Email)
-	internal.Store().QueryRow(context.Background(), getUserQuery).Scan(&user.UserId, &user.FirstName, &user.SecondName, &user.Email, &user.Password, &user.Photo, &user.Bio, &user.Phone, &user.Links, &user.Followers, &user.Subscribers)
+	internal.Store.QueryRow(context.Background(), getUserQuery).Scan(&user.UserId, &user.FirstName, &user.SecondName, &user.Email, &user.Password, &user.Photo, &user.Bio, &user.Phone, &user.Links, &user.Followers, &user.Subscribers)
 
 	if user.Email != "" {
 		return fiber.NewError(409, "Пользователь с таким email уже существует")

@@ -25,7 +25,6 @@ func (u UserControllers) GetUser(c *fiber.Ctx) error {
 	// получаем все queries
 	userId, _ := strconv.Atoi(c.Query("search_id"))
 	searchQuery := c.Query("search_query")
-	u.UserServices = services.User{UserId: userId}
 
 	if searchQuery != "" {
 		u.UserServices = services.User{}
@@ -35,6 +34,8 @@ func (u UserControllers) GetUser(c *fiber.Ctx) error {
 		}
 		return c.JSON(resultUsers)
 	}
+
+	u.UserServices = services.User{UserId: userId}
 	if userId != 0 {
 		user, err := u.UserServices.ReadById()
 		if err != nil {
