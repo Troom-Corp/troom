@@ -11,6 +11,7 @@ type PostInterface interface {
 	Create() error
 	ReadAll() ([]Post, error)
 	ReadById() (Post, error)
+	SearchByQuery(searchQuery string) ([]Post, error)
 	Update() error
 	Delete() error
 }
@@ -19,6 +20,7 @@ type Post struct {
 	PostId   int
 	UserId   int
 	Time     string
+	Title    string
 	Blocks   string
 	Likes    string
 	Dislikes string
@@ -26,9 +28,10 @@ type Post struct {
 
 // Create Создать пост по входным данным
 func (p Post) Create() error {
-	createQuery := fmt.Sprintf("INSERT INTO public.posts (userid, time, blocks, likes, dislikes) VALUES ('%d', '%s', '%s', '%s', '%s');",
+	createQuery := fmt.Sprintf("INSERT INTO public.posts (userid, time, title, blocks, likes, dislikes) VALUES ('%d', '%s', '%s', '%s', '%s', '%s');",
 		p.UserId,
 		p.Time,
+		p.Title,
 		p.Blocks,
 		p.Likes,
 		p.Dislikes)
@@ -50,6 +53,7 @@ func (p Post) ReadAll() ([]Post, error) {
 			&post.PostId,
 			&post.UserId,
 			&post.Time,
+			&post.Title,
 			&post.Blocks,
 			&post.Likes,
 			&post.Dislikes)
@@ -70,17 +74,47 @@ func (p Post) ReadById() (Post, error) {
 		&post.PostId,
 		&post.UserId,
 		&post.Time,
+		&post.Title,
 		&post.Blocks,
-		&post.Likes, &post.Dislikes)
+		&post.Likes,
+		&post.Dislikes)
 	if err != nil {
 		return Post{}, err
 	}
 	return post, nil
 }
 
+// SearchByQuery Поиск постов по названию
+func (p Post) SearchByQuery(searchQuery string) ([]Post, error) {
+	var posts []Post
+	searchFormat := "%" + searchQuery + "%"
+	searchByQuery := fmt.Sprintf("SELECT * FROM public.posts WHERE LOWER(title) LIKE '%s'", searchFormat)
+	rows, err := internal.Store.Query(context.Background(), searchByQuery)
+	if err != nil {
+		return []Post{}, nil
+	}
+
+	for rows.Next() {
+		var post Post
+		err = rows.Scan(
+			&post.PostId,
+			&post.UserId,
+			&post.Time,
+			&post.Title,
+			&post.Blocks,
+			&post.Likes, &post.Dislikes)
+		if err != nil {
+			return []Post{}, err
+		}
+		posts = append(posts, post)
+	}
+
+	return posts, nil
+}
+
 // Update Обновить данные поста по ID
 func (p Post) Update() error {
-	updateByIdQuery := fmt.Sprintf("UPDATE public.posts SET blocks = '%s' WHERE postid = %d", p.Blocks, p.PostId)
+	updateByIdQuery := fmt.Sprintf("UPDATE public.posts SET title = '%s' blocks = '%s', WHERE postid = %d", p.Title, p.Blocks, p.PostId)
 	_, err := internal.Store.Query(context.Background(), updateByIdQuery)
 	if err != nil {
 		return err
