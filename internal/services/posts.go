@@ -32,7 +32,7 @@ func (p Post) Create() error {
 		p.Blocks,
 		p.Likes,
 		p.Dislikes)
-	_, err := internal.Store().Query(context.Background(), createQuery)
+	_, err := internal.Store.Query(context.Background(), createQuery)
 	if err != nil {
 		return err
 	}
@@ -42,7 +42,7 @@ func (p Post) Create() error {
 // ReadAll Прочитать все посты из базы данных
 func (p Post) ReadAll() ([]Post, error) {
 	var posts []Post
-	rows, _ := internal.Store().Query(context.Background(), "SELECT * FROM public.posts")
+	rows, _ := internal.Store.Query(context.Background(), "SELECT * FROM public.posts")
 
 	for rows.Next() {
 		var post Post
@@ -66,13 +66,12 @@ func (p Post) ReadAll() ([]Post, error) {
 func (p Post) ReadById() (Post, error) {
 	var post Post
 	readByIdQuery := fmt.Sprintf("SELECT * FROM public.posts WHERE postid=%d", p.PostId)
-	err := internal.Store().QueryRow(context.Background(), readByIdQuery).Scan(
+	err := internal.Store.QueryRow(context.Background(), readByIdQuery).Scan(
 		&post.PostId,
 		&post.UserId,
 		&post.Time,
 		&post.Blocks,
-		&post.Likes,
-		&post.Dislikes)
+		&post.Likes, &post.Dislikes)
 	if err != nil {
 		return Post{}, err
 	}
@@ -82,7 +81,7 @@ func (p Post) ReadById() (Post, error) {
 // Update Обновить данные поста по ID
 func (p Post) Update() error {
 	updateByIdQuery := fmt.Sprintf("UPDATE public.posts SET blocks = '%s' WHERE postid = %d", p.Blocks, p.PostId)
-	_, err := internal.Store().Query(context.Background(), updateByIdQuery)
+	_, err := internal.Store.Query(context.Background(), updateByIdQuery)
 	if err != nil {
 		return err
 	}
@@ -92,7 +91,7 @@ func (p Post) Update() error {
 // Delete Удалить все данные поста по ID
 func (p Post) Delete() error {
 	deleteByIdQuery := fmt.Sprintf("DELETE FROM public.posts WHERE postid = %d", p.PostId)
-	_, err := internal.Store().Query(context.Background(), deleteByIdQuery)
+	_, err := internal.Store.Query(context.Background(), deleteByIdQuery)
 	if err != nil {
 		return err
 	}

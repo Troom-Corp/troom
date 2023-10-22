@@ -31,7 +31,7 @@ func (c Comment) Create() error {
 		c.Text,
 		c.Likes,
 		c.Replies)
-	_, err := internal.Store().Query(context.Background(), createQuery)
+	_, err := internal.Store.Query(context.Background(), createQuery)
 	if err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ func (c Comment) ReadByPostId() ([]Comment, error) {
 	var comments []Comment
 
 	byPostIdQuery := fmt.Sprintf("SELECT * FROM public.comments WHERE postid=%d", c.PostId)
-	rows, _ := internal.Store().Query(context.Background(), byPostIdQuery)
+	rows, _ := internal.Store.Query(context.Background(), byPostIdQuery)
 	for rows.Next() {
 		var comment Comment
 		err := rows.Scan(
@@ -64,12 +64,8 @@ func (c Comment) ReadByPostId() ([]Comment, error) {
 
 // Update Обновить данные коментария по ID
 func (c Comment) Update() error {
-	updateByIdQuery := fmt.Sprintf("UPDATE public.comments SET text = '%s', likes = '%s', replies = '%s' WHERE commentid=%d",
-		c.Text,
-		c.Likes,
-		c.Replies,
-		c.CommentId)
-	_, err := internal.Store().Query(context.Background(), updateByIdQuery)
+	updateByIdQuery := fmt.Sprintf("UPDATE public.comments SET text = '%s', likes = '%s', replies = '%s' WHERE commentid=%d", c.Text, c.Likes, c.Replies, c.CommentId)
+	_, err := internal.Store.Query(context.Background(), updateByIdQuery)
 	if err != nil {
 		return err
 	}
@@ -79,7 +75,7 @@ func (c Comment) Update() error {
 // Delete Удалить комментарий по ID
 func (c Comment) Delete() error {
 	deleteByIdQuery := fmt.Sprintf("DELETE FROM public.comments WHERE commentid = %d", c.CommentId)
-	_, err := internal.Store().Query(context.Background(), deleteByIdQuery)
+	_, err := internal.Store.Query(context.Background(), deleteByIdQuery)
 	if err != nil {
 		return err
 	}
