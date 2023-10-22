@@ -26,7 +26,12 @@ type Post struct {
 
 // Create Создать пост по входным данным
 func (p Post) Create() error {
-	createQuery := fmt.Sprintf("INSERT INTO public.posts (userid, time, blocks, likes, dislikes) VALUES ('%d', '%s', '%s', '%s', '%s');", p.UserId, p.Time, p.Blocks, p.Likes, p.Dislikes)
+	createQuery := fmt.Sprintf("INSERT INTO public.posts (userid, time, blocks, likes, dislikes) VALUES ('%d', '%s', '%s', '%s', '%s');",
+		p.UserId,
+		p.Time,
+		p.Blocks,
+		p.Likes,
+		p.Dislikes)
 	_, err := internal.Store().Query(context.Background(), createQuery)
 	if err != nil {
 		return err
@@ -41,7 +46,13 @@ func (p Post) ReadAll() ([]Post, error) {
 
 	for rows.Next() {
 		var post Post
-		err := rows.Scan(&post.PostId, &post.UserId, &post.Time, &post.Blocks, &post.Likes, &post.Dislikes)
+		err := rows.Scan(
+			&post.PostId,
+			&post.UserId,
+			&post.Time,
+			&post.Blocks,
+			&post.Likes,
+			&post.Dislikes)
 		if err != nil {
 			return []Post{}, err
 		}
@@ -55,7 +66,13 @@ func (p Post) ReadAll() ([]Post, error) {
 func (p Post) ReadById() (Post, error) {
 	var post Post
 	readByIdQuery := fmt.Sprintf("SELECT * FROM public.posts WHERE postid=%d", p.PostId)
-	err := internal.Store().QueryRow(context.Background(), readByIdQuery).Scan(&post.PostId, &post.UserId, &post.Time, &post.Blocks, &post.Likes, &post.Dislikes)
+	err := internal.Store().QueryRow(context.Background(), readByIdQuery).Scan(
+		&post.PostId,
+		&post.UserId,
+		&post.Time,
+		&post.Blocks,
+		&post.Likes,
+		&post.Dislikes)
 	if err != nil {
 		return Post{}, err
 	}

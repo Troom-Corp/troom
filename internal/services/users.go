@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+
 	"github.com/Troom-Corp/troom/internal"
 )
 
@@ -32,7 +33,17 @@ type User struct {
 // Create Создать пользователя по входным данным и получить ID этого пользователя
 func (u User) Create() (int, error) {
 	var userId int
-	createQuery := fmt.Sprintf("INSERT INTO public.users (firstname, secondname, email, password, photo, bio, phone, links, followers, subscribers) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') RETURNING userid", u.FirstName, u.SecondName, u.Email, u.Password, u.Photo, u.Bio, u.Phone, u.Links, u.Followers, u.Subscribers)
+	createQuery := fmt.Sprintf("INSERT INTO public.users (firstname, secondname, email, password, photo, bio, phone, links, followers, subscribers) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') RETURNING userid",
+		u.FirstName,
+		u.SecondName,
+		u.Email,
+		u.Password,
+		u.Photo,
+		u.Bio,
+		u.Phone,
+		u.Links,
+		u.Followers,
+		u.Subscribers)
 	rows, err := internal.Store().Query(context.Background(), createQuery)
 	rows.Scan(&userId)
 	return userId, err
@@ -45,7 +56,18 @@ func (u User) ReadAll() ([]User, error) {
 	rows, _ := internal.Store().Query(context.Background(), "SELECT * FROM public.users;")
 	for rows.Next() {
 		var user User
-		err := rows.Scan(&user.UserId, &user.FirstName, &user.SecondName, &user.Email, &user.Password, &user.Photo, &user.Bio, &user.Phone, &user.Links, &user.Followers, &user.Subscribers)
+		err := rows.Scan(
+			&user.UserId,
+			&user.FirstName,
+			&user.SecondName,
+			&user.Email,
+			&user.Password,
+			&user.Photo,
+			&user.Bio,
+			&user.Phone,
+			&user.Links,
+			&user.Followers,
+			&user.Subscribers)
 		if err != nil {
 			return []User{}, err
 		}
@@ -59,7 +81,18 @@ func (u User) ReadAll() ([]User, error) {
 func (u User) ReadById() (User, error) {
 	var user User
 	readByIdQuery := fmt.Sprintf("SELECT * FROM public.users WHERE userid=%d", u.UserId)
-	err := internal.Store().QueryRow(context.Background(), readByIdQuery).Scan(&user.UserId, &user.FirstName, &user.SecondName, &user.Email, &user.Password, &user.Photo, &user.Bio, &user.Phone, &user.Links, &user.Followers, &user.Subscribers)
+	err := internal.Store().QueryRow(context.Background(), readByIdQuery).Scan(
+		&user.UserId,
+		&user.FirstName,
+		&user.SecondName,
+		&user.Email,
+		&user.Password,
+		&user.Photo,
+		&user.Bio,
+		&user.Phone,
+		&user.Links,
+		&user.Followers,
+		&user.Subscribers)
 	if err != nil {
 		return User{}, err
 	}
@@ -77,7 +110,18 @@ func (u User) SearchByQuery(searchQuery string) ([]User, error) {
 
 	for rows.Next() {
 		var queryUser User
-		err = rows.Scan(&queryUser.UserId, &queryUser.FirstName, &queryUser.SecondName, &queryUser.Email, &queryUser.Password, &queryUser.Photo, &queryUser.Bio, &queryUser.Phone, &queryUser.Links, &queryUser.Followers, &queryUser.Subscribers)
+		err = rows.Scan(
+			&queryUser.UserId,
+			&queryUser.FirstName,
+			&queryUser.SecondName,
+			&queryUser.Email,
+			&queryUser.Password,
+			&queryUser.Photo,
+			&queryUser.Bio,
+			&queryUser.Phone,
+			&queryUser.Links,
+			&queryUser.Followers,
+			&queryUser.Subscribers)
 		if err != nil {
 			return []User{}, err
 		}
@@ -89,7 +133,18 @@ func (u User) SearchByQuery(searchQuery string) ([]User, error) {
 
 // Update Обновить данные пользователя по ID
 func (u User) Update() error {
-	updateByIdQuery := fmt.Sprintf("UPDATE public.users SET firstname = '%s', secondname = '%s', email = '%s', password = '%s', photo = '%s', bio = '%s', phone = '%s', links = '%s', followers = '%s', subscribers = '%s' WHERE userid = %d", u.FirstName, u.SecondName, u.Email, u.Password, u.Photo, u.Bio, u.Phone, u.Links, u.Followers, u.Subscribers, u.UserId)
+	updateByIdQuery := fmt.Sprintf("UPDATE public.users SET firstname = '%s', secondname = '%s', email = '%s', password = '%s', photo = '%s', bio = '%s', phone = '%s', links = '%s', followers = '%s', subscribers = '%s' WHERE userid = %d",
+		u.FirstName,
+		u.SecondName,
+		u.Email,
+		u.Password,
+		u.Photo,
+		u.Bio,
+		u.Phone,
+		u.Links,
+		u.Followers,
+		u.Subscribers,
+		u.UserId)
 	_, err := internal.Store().Query(context.Background(), updateByIdQuery)
 	if err != nil {
 		return err
