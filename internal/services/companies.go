@@ -42,7 +42,7 @@ func (c Company) Create() (int, error) {
 		c.Employees,
 		c.Vacansies,
 		c.Reviews)
-	rows, err := internal.Store().Query(context.Background(), createQuery)
+	rows, err := internal.Store.Query(context.Background(), createQuery)
 	rows.Scan(&companyId)
 	return companyId, err
 }
@@ -51,7 +51,7 @@ func (c Company) Create() (int, error) {
 func (c Company) ReadAll() ([]Company, error) {
 	var companies []Company
 
-	rows, _ := internal.Store().Query(context.Background(), "SELECT * FROM public.companies;")
+	rows, _ := internal.Store.Query(context.Background(), "SELECT * FROM public.companies;")
 	for rows.Next() {
 		var company Company
 		err := rows.Scan(
@@ -77,7 +77,7 @@ func (c Company) ReadAll() ([]Company, error) {
 func (c Company) ReadById() (Company, error) {
 	var company Company
 	readByIdQuery := fmt.Sprintf("SELECT * FROM public.companies WHERE companyid=%d", c.CompanyId)
-	err := internal.Store().QueryRow(context.Background(), readByIdQuery).Scan(
+	err := internal.Store.QueryRow(context.Background(), readByIdQuery).Scan(
 		&company.CompanyId,
 		&company.Company_bio,
 		&company.Company_photo,
@@ -98,7 +98,7 @@ func (c Company) SearchByQuery(searchQuery string) ([]Company, error) {
 	var companies []Company
 	searchFormat := "%" + searchQuery + "%"
 	searchByQuery := fmt.Sprintf("SELECT * FROM public.companies WHERE LOWER(name) LIKE '%s'", searchFormat)
-	rows, err := internal.Store().Query(context.Background(), searchByQuery)
+	rows, err := internal.Store.Query(context.Background(), searchByQuery)
 	if err != nil {
 		return []Company{}, nil
 	}
@@ -138,7 +138,7 @@ func (c Company) Update() error {
 		c.Vacansies,
 		c.Reviews,
 		c.CompanyId)
-	_, err := internal.Store().Query(context.Background(), updateByIdQuery)
+	_, err := internal.Store.Query(context.Background(), updateByIdQuery)
 	if err != nil {
 		return err
 	}
@@ -148,7 +148,7 @@ func (c Company) Update() error {
 // Delete Удалить все данные компании по ID
 func (c Company) Delete() error {
 	deleteByIdQuery := fmt.Sprintf("DELETE FROM public.companies WHERE companyid = %d", c.CompanyId)
-	_, err := internal.Store().Query(context.Background(), deleteByIdQuery)
+	_, err := internal.Store.Query(context.Background(), deleteByIdQuery)
 	if err != nil {
 		return err
 	}
