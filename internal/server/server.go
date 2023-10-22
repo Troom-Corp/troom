@@ -3,6 +3,7 @@ package server
 import (
 	"github.com/Troom-Corp/troom/internal/controllers"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 var userControllers = controllers.UserControllers{}
@@ -13,6 +14,12 @@ var authControllers = controllers.AuthControllers{}
 func Start() {
 	app := fiber.New()
 	api := app.Group("/api")
+
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     "http://localhost:5173",
+		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
+		AllowCredentials: true,
+	}))
 
 	// users group
 	users := api.Group("/users")

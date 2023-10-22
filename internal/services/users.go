@@ -3,7 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
-	"github.com/Troom-Corp/troom/internal"
+	"github.com/Troom-Corp/troom/internal/storage"
 )
 
 type UserInterface interface {
@@ -33,8 +33,13 @@ type User struct {
 func (u User) Create() (int, error) {
 	var userId int
 	createQuery := fmt.Sprintf("INSERT INTO public.users (firstname, secondname, email, password, photo, bio, phone, links, followers, subscribers) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') RETURNING userid", u.FirstName, u.SecondName, u.Email, u.Password, u.Photo, u.Bio, u.Phone, u.Links, u.Followers, u.Subscribers)
-	rows, err := internal.Store.Query(context.Background(), createQuery)
+
+	conn := storage.SqlInterface.New()
+
+	rows, err := conn.Query(context.Background(), createQuery)
 	rows.Scan(&userId)
+
+	storage.SqlInterface.Close(conn)
 	return userId, err
 }
 
@@ -42,9 +47,12 @@ func (u User) Create() (int, error) {
 func (u User) ReadAll() ([]User, error) {
 	var users []User
 
-	rows, _ := internal.Store.Query(context.Background(), "SELECT * FROM public.users;")
+	conn := storage.SqlInterface.New()
+
+	rows, _ := conn.Query(context.Background(), "SELECT * FROM public.users;")
 	for rows.Next() {
 		var user User
+
 		err := rows.Scan(&user.UserId, &user.FirstName, &user.SecondName, &user.Email, &user.Password, &user.Photo, &user.Bio, &user.Phone, &user.Links, &user.Followers, &user.Subscribers)
 		if err != nil {
 			return []User{}, err
@@ -52,25 +60,34 @@ func (u User) ReadAll() ([]User, error) {
 		users = append(users, user)
 	}
 
+	storage.SqlInterface.Close(conn)
+
 	return users, nil
 }
 
 // ReadById Прочитать одного пользователя по ID
 func (u User) ReadById() (User, error) {
 	var user User
+
+	conn := storage.SqlInterface.New()
+
 	readByIdQuery := fmt.Sprintf("SELECT * FROM public.users WHERE userid=%d", u.UserId)
-	err := internal.Store.QueryRow(context.Background(), readByIdQuery).Scan(&user.UserId, &user.FirstName, &user.SecondName, &user.Email, &user.Password, &user.Photo, &user.Bio, &user.Phone, &user.Links, &user.Followers, &user.Subscribers)
+	err := conn.QueryRow(context.Background(), readByIdQuery).Scan(&user.UserId, &user.FirstName, &user.SecondName, &user.Email, &user.Password, &user.Photo, &user.Bio, &user.Phone, &user.Links, &user.Followers, &user.Subscribers)
 	if err != nil {
 		return User{}, err
 	}
+	storage.SqlInterface.Close(conn)
 	return user, nil
 }
 
 func (u User) SearchByQuery(searchQuery string) ([]User, error) {
 	var queryUsers []User
+
+	conn := storage.SqlInterface.New()
+
 	searchFormat := "%" + searchQuery + "%"
 	searchByQuery := fmt.Sprintf("SELECT * FROM public.users WHERE LOWER(firstname) LIKE '%s' OR LOWER(secondname) LIKE '%s'", searchFormat, searchFormat)
-	rows, err := internal.Store.Query(context.Background(), searchByQuery)
+	rows, err := conn.Query(context.Background(), searchByQuery)
 	if err != nil {
 		return []User{}, nil
 	}
@@ -83,26 +100,34 @@ func (u User) SearchByQuery(searchQuery string) ([]User, error) {
 		}
 		queryUsers = append(queryUsers, queryUser)
 	}
-
+	storage.SqlInterface.Close(conn)
 	return queryUsers, nil
 }
 
 // Update Обновить данные пользователя по ID
 func (u User) Update() error {
+
+	conn := storage.SqlInterface.New()
+
 	updateByIdQuery := fmt.Sprintf("UPDATE public.users SET firstname = '%s', secondname = '%s', email = '%s', password = '%s', photo = '%s', bio = '%s', phone = '%s', links = '%s', followers = '%s', subscribers = '%s' WHERE userid = %d", u.FirstName, u.SecondName, u.Email, u.Password, u.Photo, u.Bio, u.Phone, u.Links, u.Followers, u.Subscribers, u.UserId)
-	_, err := internal.Store.Query(context.Background(), updateByIdQuery)
+	_, err := conn.Query(context.Background(), updateByIdQuery)
 	if err != nil {
 		return err
 	}
+	storage.SqlInterface.Close(conn)
 	return nil
 }
 
 // Delete Удалить все данные пользователя по ID
 func (u User) Delete() error {
+
+	conn := storage.SqlInterface.New()
+
 	deleteByIdQuery := fmt.Sprintf("DELETE FROM public.users WHERE userid = %d", u.UserId)
-	_, err := internal.Store.Query(context.Background(), deleteByIdQuery)
+	_, err := conn.Query(context.Background(), deleteByIdQuery)
 	if err != nil {
 		return err
 	}
+	storage.SqlInterface.Close(conn)
 	return nil
 }
