@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	jwt "github.com/Russian-LinkedIn/jwt_token-service"
 	"github.com/Troom-Corp/troom/internal/pkg"
 	"github.com/Troom-Corp/troom/internal/services"
@@ -16,10 +15,11 @@ type AuthControllers struct {
 
 func (a AuthControllers) SignIn(c *fiber.Ctx) error {
 	var credentials services.SignInCredentials
-	c.BodyParser(&credentials)
+	err := c.BodyParser(&credentials)
+	if err != nil {
+		return fiber.NewError(500, "Неизвестная ошибка")
+	}
 	a.SignInService = credentials
-
-	fmt.Println(credentials)
 
 	authUser, err := a.SignInService.ValidData()
 	if err != nil {
@@ -36,7 +36,10 @@ func (a AuthControllers) SignIn(c *fiber.Ctx) error {
 
 func (a AuthControllers) SignUp(c *fiber.Ctx) error {
 	var credentials services.SignUpCredentials
-	c.BodyParser(&credentials)
+	err := c.BodyParser(&credentials)
+	if err != nil {
+		return fiber.NewError(500, "Ошибка при создании пользователя")
+	}
 	a.SignUpService = credentials
 
 	hashedPassword, err := pkg.Encode([]byte(credentials.Password))
