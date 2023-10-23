@@ -23,11 +23,25 @@ func (comp CompanyControllers) PatchCompany(c *fiber.Ctx) error {
 	return fiber.NewError(200, "Данные успешно обновлены")
 }
 
-// Метод для получения компаний
-func (comp CompanyControllers) GetCompany(c *fiber.Ctx) error {
-	companyId, _ := strconv.Atoi(c.Query("search_id"))
-	searchQuery := c.Query("search_query")
+// Метод для получения компании по id
+func (comp CompanyControllers) CompanyId(c *fiber.Ctx) error {
+	companyid, err := strconv.Atoi(c.Query("id"))
+	if err != nil {
+		return fiber.NewError(500, "Неизвестная ошибка")
+	}
+	comp.CompanyServices = services.Company{CompanyId: companyid}
+	company, err := comp.CompanyServices.ReadById()
 
+	if err != nil {
+		return fiber.NewError(500, "Неизвестная ошибка")
+	}
+
+	return c.JSON(company)
+}
+
+// Методя для получения компаний
+func (comp CompanyControllers) AllCompanies(c *fiber.Ctx) error {
+	searchQuery := c.Query("search_query")
 	if searchQuery != "" {
 		comp.CompanyServices = services.Company{}
 		resultCompanies, err := comp.CompanyServices.SearchByQuery(searchQuery)
@@ -36,19 +50,10 @@ func (comp CompanyControllers) GetCompany(c *fiber.Ctx) error {
 		}
 		return c.JSON(resultCompanies)
 	}
-
-	comp.CompanyServices = services.Company{CompanyId: companyId}
-	if companyId != 0 {
-		company, err := comp.CompanyServices.ReadById()
-		if err != nil {
-			return fiber.NewError(404, "Компания не найдена")
-		}
-		return c.JSON(company)
-	}
-
+	comp.CompanyServices = services.Company{}
 	allCompanies, err := comp.CompanyServices.ReadAll()
 	if err != nil {
-		return fiber.NewError(404, "Ошибка при получении компании")
+		return fiber.NewError(404, "Ошибка при поиске компаний")
 	}
 	return c.JSON(allCompanies)
 }

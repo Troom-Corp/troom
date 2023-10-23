@@ -48,9 +48,10 @@ func Start() {
 	auth.Post("/sign_up", authControllers.SignUp)
 	auth.Post("/refresh_token", authControllers.RefreshToken)
 
-	// companies group (Даня)
+	// companies group
 	company := api.Group("/companies")
-	company.Get("/", companyComtrollers.GetCompany)
+	company.Get("/", companyComtrollers.AllCompanies)
+	company.Get("/:id", companyComtrollers.CompanyId)
 	company.Delete("/", companyComtrollers.DeleteCompany)
 	company.Patch("/", companyComtrollers.PatchCompany)
 
