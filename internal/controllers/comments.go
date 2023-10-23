@@ -13,6 +13,7 @@ type CommentControllers struct {
 func (cc CommentControllers) CreateComment(c *fiber.Ctx) error {
 	var comment services.Comment
 	c.BodyParser(&comment)
+
 	cc.CommentServices = comment
 
 	err := cc.CommentServices.Create()
@@ -33,7 +34,7 @@ func (cc CommentControllers) GetComment(c *fiber.Ctx) error {
 		}
 		return c.JSON(commentsByPostId)
 	}
-	return fiber.NewError(404, "Комментарии не найдены")
+	return c.JSON([]services.Comment{})
 }
 
 func (cc CommentControllers) DeleteComment(c *fiber.Ctx) error {

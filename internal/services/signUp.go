@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"regexp"
 	"unicode"
-
 	"github.com/Troom-Corp/troom/internal"
 	"github.com/gofiber/fiber/v2"
 )
@@ -43,8 +42,11 @@ func PasswordValidator(password string) bool {
 
 func (s SignUpCredentials) ValidData() error {
 	var user User
+
+	conn := storage.SqlInterface.New()
+
 	getUserQuery := fmt.Sprintf("SELECT * FROM public.users WHERE email='%s'", s.Email)
-	internal.Store.QueryRow(context.Background(), getUserQuery).Scan(&user.UserId, &user.FirstName, &user.SecondName, &user.Email, &user.Password, &user.Photo, &user.Bio, &user.Phone, &user.Links, &user.Followers, &user.Subscribers)
+	conn.QueryRow(context.Background(), getUserQuery).Scan(&user.UserId, &user.FirstName, &user.SecondName, &user.Email, &user.Password, &user.Photo, &user.Bio, &user.Phone, &user.Links, &user.Followers, &user.Subscribers)
 
 	if user.Email != "" {
 		return fiber.NewError(409, "Пользователь с таким email уже существует")
@@ -52,6 +54,6 @@ func (s SignUpCredentials) ValidData() error {
 	if !PasswordValidator(s.Password) {
 		return fiber.NewError(409, "Пароль должен соотвествовать требованиям")
 	}
-
+	storage.SqlInterface.Close(conn)
 	return nil
 }
