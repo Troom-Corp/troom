@@ -8,7 +8,7 @@ import (
 )
 
 type CompanyInterface interface {
-	Create() error
+	Create() (int, error)
 	ReadAll() ([]Company, error)
 	ReadById() (Company, error)
 	SearchByQuery(string) ([]Company, error)

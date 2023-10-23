@@ -10,6 +10,7 @@ var userControllers = controllers.UserControllers{}
 var postControllers = controllers.PostsControllers{}
 var commentControllers = controllers.CommentControllers{}
 var authControllers = controllers.AuthControllers{}
+var companyComtrollers = controllers.CompanyControllers{}
 
 func Start() {
 	app := fiber.New()
@@ -48,6 +49,10 @@ func Start() {
 	auth.Post("/refresh_token", authControllers.RefreshToken)
 
 	// companies group (Даня)
+	company := api.Group("/companies")
+	company.Get("/", companyComtrollers.GetCompany)
+	company.Delete("/", companyComtrollers.DeleteCompany)
+	company.Patch("/", companyComtrollers.PatchCompany)
 
 	app.Listen(":5000")
 }
