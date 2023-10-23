@@ -10,6 +10,7 @@ type PostInterface interface {
 	Create() error
 	ReadAll() ([]Post, error)
 	ReadById() (Post, error)
+	SearchByQuery(searchQuery string) ([]Post, error)
 	Update() error
 	Delete() error
 }
@@ -18,6 +19,7 @@ type Post struct {
 	PostId   int
 	UserId   int
 	Time     string
+	Title    string
 	Blocks   string
 	Likes    string
 	Dislikes string
@@ -25,6 +27,7 @@ type Post struct {
 
 // Create Создать пост по входным данным
 func (p Post) Create() error {
+
 
 	conn := storage.SqlInterface.New()
 
@@ -35,6 +38,7 @@ func (p Post) Create() error {
 	}
 
 	storage.SqlInterface.Close(conn)
+
 	return nil
 }
 
@@ -48,13 +52,22 @@ func (p Post) ReadAll() ([]Post, error) {
 
 	for rows.Next() {
 		var post Post
-		err := rows.Scan(&post.PostId, &post.UserId, &post.Time, &post.Blocks, &post.Likes, &post.Dislikes)
+		err := rows.Scan(
+			&post.PostId,
+			&post.UserId,
+			&post.Time,
+			&post.Title,
+			&post.Blocks,
+			&post.Likes,
+			&post.Dislikes)
 		if err != nil {
 			return []Post{}, err
 		}
 		posts = append(posts, post)
 	}
+
 	storage.SqlInterface.Close(conn)
+
 	return posts, nil
 }
 
@@ -65,7 +78,9 @@ func (p Post) ReadById() (Post, error) {
 	conn := storage.SqlInterface.New()
 
 	readByIdQuery := fmt.Sprintf("SELECT * FROM public.posts WHERE postid=%d", p.PostId)
+
 	err := conn.QueryRow(context.Background(), readByIdQuery).Scan(&post.PostId, &post.UserId, &post.Time, &post.Blocks, &post.Likes, &post.Dislikes)
+
 	if err != nil {
 		return Post{}, err
 	}
@@ -73,13 +88,41 @@ func (p Post) ReadById() (Post, error) {
 	return post, nil
 }
 
+// SearchByQuery Поиск постов по названию
+func (p Post) SearchByQuery(searchQuery string) ([]Post, error) {
+	var posts []Post
+	searchFormat := "%" + searchQuery + "%"
+	searchByQuery := fmt.Sprintf("SELECT * FROM public.posts WHERE LOWER(title) LIKE '%s'", searchFormat)
+	rows, err := internal.Store.Query(context.Background(), searchByQuery)
+	if err != nil {
+		return []Post{}, nil
+	}
+
+	for rows.Next() {
+		var post Post
+		err = rows.Scan(
+			&post.PostId,
+			&post.UserId,
+			&post.Time,
+			&post.Title,
+			&post.Blocks,
+			&post.Likes, &post.Dislikes)
+		if err != nil {
+			return []Post{}, err
+		}
+		posts = append(posts, post)
+	}
+
+	return posts, nil
+}
+
 // Update Обновить данные поста по ID
 func (p Post) Update() error {
 
-	conn := storage.SqlInterface.New()
-
-	updateByIdQuery := fmt.Sprintf("UPDATE public.posts SET blocks = '%s' WHERE postid = %d", p.Blocks, p.PostId)
+  conn := storage.SqlInterface.New()
+	updateByIdQuery := fmt.Sprintf("UPDATE public.posts SET title = '%s' blocks = '%s', WHERE postid = %d", p.Title, p.Blocks, p.PostId)
 	_, err := conn.Query(context.Background(), updateByIdQuery)
+
 	if err != nil {
 		return err
 	}

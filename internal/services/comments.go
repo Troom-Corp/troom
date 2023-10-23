@@ -3,7 +3,9 @@ package services
 import (
 	"context"
 	"fmt"
+
 	"github.com/Troom-Corp/troom/internal/storage"
+
 )
 
 type CommentInterface interface {
@@ -46,7 +48,13 @@ func (c Comment) ReadByPostId() ([]Comment, error) {
 	rows, _ := conn.Query(context.Background(), byPostIdQuery)
 	for rows.Next() {
 		var comment Comment
-		err := rows.Scan(&comment.CommentId, &comment.PostId, &comment.UserId, &comment.Text, &comment.Likes, &comment.Replies)
+		err := rows.Scan(
+			&comment.CommentId,
+			&comment.PostId,
+			&comment.UserId,
+			&comment.Text,
+			&comment.Likes,
+			&comment.Replies)
 		if err != nil {
 			return []Comment{}, err
 		}

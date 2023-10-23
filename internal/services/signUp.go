@@ -3,10 +3,10 @@ package services
 import (
 	"context"
 	"fmt"
-	"github.com/Troom-Corp/troom/internal/storage"
-	"github.com/gofiber/fiber/v2"
 	"regexp"
 	"unicode"
+	"github.com/Troom-Corp/troom/internal"
+	"github.com/gofiber/fiber/v2"
 )
 
 type SignUpInterface interface {
