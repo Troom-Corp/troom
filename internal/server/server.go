@@ -24,20 +24,22 @@ func Start() {
 
 	// users group
 	users := api.Group("/users")
-	users.Get("/", userControllers.GetUser)
+	users.Get("/", userControllers.AllUsers)
+	users.Get("/:id", userControllers.UserId)
 	users.Delete("/", userControllers.DeleteUser)
 	users.Patch("/", userControllers.PatchUser)
 
 	// posts group
 	posts := api.Group("/posts")
-	posts.Get("/", postControllers.GetPost)
+	posts.Get("/", postControllers.AllPost)
+	users.Get("/:id", postControllers.PostId)
 	posts.Delete("/", postControllers.DeletePost)
 	posts.Patch("/", postControllers.PatchPost)
 
 	// comments group
 	comments := api.Group("/comments")
 	comments.Post("/", commentControllers.CreateComment)
-	comments.Get("/", commentControllers.GetComment)
+	comments.Get("/:post_id", commentControllers.CommentByPostId)
 	comments.Delete("/", commentControllers.DeleteComment)
 	comments.Patch("/", commentControllers.PatchComment)
 

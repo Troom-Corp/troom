@@ -10,6 +10,22 @@ type UserControllers struct {
 	UserServices services.UserInterface
 }
 
+func (u UserControllers) UserId(c *fiber.Ctx) error {
+	userId, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return fiber.NewError(500, "Неизвестная ошибка")
+	}
+
+	u.UserServices = services.User{UserId: userId}
+	user, err := u.UserServices.ReadById()
+
+	if err != nil {
+		return fiber.NewError(500, "Неизвестная ошибка")
+	}
+
+	return c.JSON(user)
+}
+
 func (u UserControllers) PatchUser(c *fiber.Ctx) error {
 	var user services.User
 	c.BodyParser(&user)
@@ -21,9 +37,8 @@ func (u UserControllers) PatchUser(c *fiber.Ctx) error {
 	return fiber.NewError(200, "Данные успешно обновлены")
 }
 
-func (u UserControllers) GetUser(c *fiber.Ctx) error {
+func (u UserControllers) AllUsers(c *fiber.Ctx) error {
 	// получаем все queries
-	userId, _ := strconv.Atoi(c.Query("search_id"))
 	searchQuery := c.Query("search_query")
 
 	if searchQuery != "" {
@@ -35,14 +50,7 @@ func (u UserControllers) GetUser(c *fiber.Ctx) error {
 		return c.JSON(resultUsers)
 	}
 
-	u.UserServices = services.User{UserId: userId}
-	if userId != 0 {
-		user, err := u.UserServices.ReadById()
-		if err != nil {
-			return fiber.NewError(404, "Пользователь не найден")
-		}
-		return c.JSON(user)
-	}
+	u.UserServices = services.User{}
 	allUsers, err := u.UserServices.ReadAll()
 	if err != nil {
 		return fiber.NewError(404, "Ошибка при получении пользователей")
