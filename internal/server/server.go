@@ -23,11 +23,6 @@ func Start() {
 
 	// users group
 	users := api.Group("/users")
-	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:5173",
-		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
-		AllowCredentials: true,
-	}))
 	users.Get("/", userControllers.GetUser)
 	users.Delete("/", userControllers.DeleteUser)
 	users.Patch("/", userControllers.PatchUser)
