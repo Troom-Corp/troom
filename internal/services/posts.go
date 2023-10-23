@@ -27,28 +27,31 @@ type Post struct {
 
 // Create Создать пост по входным данным
 func (p Post) Create() error {
-
-
 	conn := storage.SqlInterface.New()
 
 	createQuery := fmt.Sprintf("INSERT INTO public.posts (userid, time, blocks, likes, dislikes) VALUES ('%d', '%s', '%s', '%s', '%s');", p.UserId, p.Time, p.Blocks, p.Likes, p.Dislikes)
 	_, err := conn.Query(context.Background(), createQuery)
+
 	if err != nil {
+		storage.SqlInterface.Close(conn)
 		return err
 	}
 
 	storage.SqlInterface.Close(conn)
-
 	return nil
 }
 
 // ReadAll Прочитать все посты из базы данных
 func (p Post) ReadAll() ([]Post, error) {
 	var posts []Post
-
 	conn := storage.SqlInterface.New()
 
-	rows, _ := conn.Query(context.Background(), "SELECT * FROM public.posts")
+	rows, err := conn.Query(context.Background(), "SELECT * FROM public.posts")
+
+	if err != nil {
+		storage.SqlInterface.Close(conn)
+		return []Post{}, nil
+	}
 
 	for rows.Next() {
 		var post Post
@@ -61,29 +64,29 @@ func (p Post) ReadAll() ([]Post, error) {
 			&post.Likes,
 			&post.Dislikes)
 		if err != nil {
+			storage.SqlInterface.Close(conn)
 			return []Post{}, err
 		}
 		posts = append(posts, post)
 	}
 
 	storage.SqlInterface.Close(conn)
-
 	return posts, nil
 }
 
 // ReadById Прочитать один пост по ID из базы данных
 func (p Post) ReadById() (Post, error) {
 	var post Post
-
 	conn := storage.SqlInterface.New()
 
 	readByIdQuery := fmt.Sprintf("SELECT * FROM public.posts WHERE postid=%d", p.PostId)
-
 	err := conn.QueryRow(context.Background(), readByIdQuery).Scan(&post.PostId, &post.UserId, &post.Time, &post.Blocks, &post.Likes, &post.Dislikes)
 
 	if err != nil {
+		storage.SqlInterface.Close(conn)
 		return Post{}, err
 	}
+
 	storage.SqlInterface.Close(conn)
 	return post, nil
 }
@@ -91,10 +94,14 @@ func (p Post) ReadById() (Post, error) {
 // SearchByQuery Поиск постов по названию
 func (p Post) SearchByQuery(searchQuery string) ([]Post, error) {
 	var posts []Post
+	conn := storage.SqlInterface.New()
+
 	searchFormat := "%" + searchQuery + "%"
 	searchByQuery := fmt.Sprintf("SELECT * FROM public.posts WHERE LOWER(title) LIKE '%s'", searchFormat)
-	rows, err := internal.Store.Query(context.Background(), searchByQuery)
+	rows, err := conn.Query(context.Background(), searchByQuery)
+
 	if err != nil {
+		storage.SqlInterface.Close(conn)
 		return []Post{}, nil
 	}
 
@@ -108,36 +115,41 @@ func (p Post) SearchByQuery(searchQuery string) ([]Post, error) {
 			&post.Blocks,
 			&post.Likes, &post.Dislikes)
 		if err != nil {
+			storage.SqlInterface.Close(conn)
 			return []Post{}, err
 		}
 		posts = append(posts, post)
 	}
 
+	storage.SqlInterface.Close(conn)
 	return posts, nil
 }
 
 // Update Обновить данные поста по ID
 func (p Post) Update() error {
+	conn := storage.SqlInterface.New()
 
-  conn := storage.SqlInterface.New()
 	updateByIdQuery := fmt.Sprintf("UPDATE public.posts SET title = '%s' blocks = '%s', WHERE postid = %d", p.Title, p.Blocks, p.PostId)
 	_, err := conn.Query(context.Background(), updateByIdQuery)
 
 	if err != nil {
+		storage.SqlInterface.Close(conn)
 		return err
 	}
+
 	storage.SqlInterface.Close(conn)
 	return nil
 }
 
 // Delete Удалить все данные поста по ID
 func (p Post) Delete() error {
-
 	conn := storage.SqlInterface.New()
 
 	deleteByIdQuery := fmt.Sprintf("DELETE FROM public.posts WHERE postid = %d", p.PostId)
 	_, err := conn.Query(context.Background(), deleteByIdQuery)
+
 	if err != nil {
+		storage.SqlInterface.Close(conn)
 		return err
 	}
 	storage.SqlInterface.Close(conn)

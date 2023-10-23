@@ -15,6 +15,7 @@ func Start() {
 	app := fiber.New()
 	api := app.Group("/api")
 
+	// CORS configuration
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     "http://localhost:5173",
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
@@ -27,22 +28,26 @@ func Start() {
 	users.Delete("/", userControllers.DeleteUser)
 	users.Patch("/", userControllers.PatchUser)
 
+	// posts group
 	posts := api.Group("/posts")
 	posts.Get("/", postControllers.GetPost)
 	posts.Delete("/", postControllers.DeletePost)
 	posts.Patch("/", postControllers.PatchPost)
 
+	// comments group
 	comments := api.Group("/comments")
 	comments.Post("/", commentControllers.CreateComment)
 	comments.Get("/", commentControllers.GetComment)
 	comments.Delete("/", commentControllers.DeleteComment)
 	comments.Patch("/", commentControllers.PatchComment)
 
+	// authorization group
 	auth := api.Group("/auth")
 	auth.Post("/sign_in", authControllers.SignIn)
 	auth.Post("/sign_up", authControllers.SignUp)
 	auth.Post("/refresh_token", authControllers.RefreshToken)
 
-	app.Listen(":5000")
+	// companies group (Даня)
 
+	app.Listen(":5000")
 }
