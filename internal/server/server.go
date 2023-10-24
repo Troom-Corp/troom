@@ -10,7 +10,7 @@ var userControllers = controllers.UserControllers{}
 var postControllers = controllers.PostsControllers{}
 var commentControllers = controllers.CommentControllers{}
 var authControllers = controllers.AuthControllers{}
-var companyComtrollers = controllers.CompanyControllers{}
+var companyControllers = controllers.CompanyControllers{}
 
 func Start() {
 	app := fiber.New()
@@ -50,10 +50,10 @@ func Start() {
 
 	// companies group
 	company := api.Group("/companies")
-	company.Get("/", companyComtrollers.AllCompanies)
-	company.Get("/:id", companyComtrollers.CompanyId)
-	company.Delete("/", companyComtrollers.DeleteCompany)
-	company.Patch("/", companyComtrollers.PatchCompany)
+	company.Get("/", companyControllers.AllCompanies)
+	company.Get("/:id", companyControllers.CompanyId)
+	company.Delete("/", companyControllers.DeleteCompany)
+	company.Patch("/", companyControllers.PatchCompany)
 
 	app.Listen(":5000")
 }
