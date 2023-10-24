@@ -43,12 +43,12 @@ func CreateRefreshToken(userId int) (string, error) {
 }
 
 // GetIdentity Расшифровываем токен и получаем из него данные (identity)
-func GetIdentity(token string) (int, int64) {
+func GetIdentity(token string) (int, int64, error) {
 	identity, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		return KEY, nil
 	})
 	if err != nil {
-		panic(err)
+		return 0, 0, err
 	}
 
 	payload := identity.Claims.(jwt.MapClaims)
@@ -56,5 +56,5 @@ func GetIdentity(token string) (int, int64) {
 	expiredTime := int64(payload["expiredTime"].(float64))
 
 	// Возвращаем payload пользователя в удобных типах данных
-	return userId, expiredTime
+	return userId, expiredTime, nil
 }

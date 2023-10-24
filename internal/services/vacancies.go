@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/Troom-Corp/troom/internal/storage"
 )
@@ -25,6 +26,7 @@ type Vacancy struct {
 	Tags      string
 }
 
+// Create Создать вакансию по входным данным
 func (v Vacancy) Create() error {
 	conn := storage.SqlInterface.New()
 
@@ -40,6 +42,7 @@ func (v Vacancy) Create() error {
 	return nil
 }
 
+// ReadById Прочитать вакансию по ID
 func (v Vacancy) ReadById() (Vacancy, error) {
 	var vacancy Vacancy
 	conn := storage.SqlInterface.New()
@@ -56,10 +59,11 @@ func (v Vacancy) ReadById() (Vacancy, error) {
 	return vacancy, nil
 }
 
+// SearchByQuery Найти вакансии по searchQuery
 func (v Vacancy) SearchByQuery(searchQuery string) ([]Vacancy, error) {
 	var vacancies []Vacancy
 	conn := storage.SqlInterface.New()
-	searchFormat := "%" + searchQuery + "%"
+	searchFormat := "%" + strings.ToLower(searchQuery) + "%"
 	searchByQuery := fmt.Sprintf("SELECT * FROM public.vacancies WHERE LOWER(title) LIKE '%s'", searchFormat)
 	rows, err := conn.Query(context.Background(), searchByQuery)
 
@@ -87,6 +91,7 @@ func (v Vacancy) SearchByQuery(searchQuery string) ([]Vacancy, error) {
 	return vacancies, nil
 }
 
+// ReadAll Прочитать все вакансии
 func (v Vacancy) ReadAll() ([]Vacancy, error) {
 	var vacancies []Vacancy
 	conn := storage.SqlInterface.New()
@@ -119,10 +124,11 @@ func (v Vacancy) ReadAll() ([]Vacancy, error) {
 	return vacancies, nil
 }
 
+// Update Обновить данные вакансии по ID
 func (v Vacancy) Update() error {
 	conn := storage.SqlInterface.New()
 
-	updateByIdQuery := fmt.Sprintf("UPDATE public.vacancies SET title = '%s', content = '%s', feedback = '%s', tags = '%s'", v.Title, v.Content, v.FeedBack, v.Tags)
+	updateByIdQuery := fmt.Sprintf("UPDATE public.vacancies SET title = '%s', content = '%s', feedback = '%s', tags = '%s' vacancyid = %d", v.Title, v.Content, v.FeedBack, v.Tags, v.VacancyId)
 	_, err := conn.Query(context.Background(), updateByIdQuery)
 
 	if err != nil {
@@ -134,6 +140,7 @@ func (v Vacancy) Update() error {
 	return nil
 }
 
+// Delete Удалить все данные вакансии по ID
 func (v Vacancy) Delete() error {
 	conn := storage.SqlInterface.New()
 

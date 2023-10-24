@@ -38,12 +38,15 @@ func TestGetIdentityForRerfreshToken(t *testing.T) {
 	var testuserid int
 	testuserid = 100
 	testjwttoken, _ := pkg.CreateRefreshToken(testuserid)
-	resultuserid, timejwt := pkg.GetIdentity(testjwttoken)
+	resultuserid, timejwt, gotError := pkg.GetIdentity(testjwttoken)
 	if resultuserid != 100 {
 		t.Fatalf("Want (100), but got (%d)", resultuserid)
 	}
 	if reflect.TypeOf(timejwt) != reflect.TypeOf(int64(0)) {
 		t.Fatalf("Want type 'time.Time', but got '%T'", reflect.TypeOf(timejwt))
+	}
+	if gotError != nil {
+		t.Fatalf("Want error (nil), but got (%e)", gotError)
 	}
 }
 
@@ -52,11 +55,14 @@ func TestGetIdentityForAccessToken(t *testing.T) {
 	var testuserid int
 	testuserid = 100
 	testjwttoken, _ := pkg.CreateAccessToken(testuserid)
-	resultuserid, timejwt := pkg.GetIdentity(testjwttoken)
+	resultuserid, timejwt, gotError := pkg.GetIdentity(testjwttoken)
 	if resultuserid != 100 {
 		t.Fatalf("Want (100), but got (%d)", resultuserid)
 	}
 	if reflect.TypeOf(timejwt) != reflect.TypeOf(int64(0)) {
 		t.Fatalf("Want type 'time.Time', but got '%T'", reflect.TypeOf(timejwt))
+	}
+	if gotError != nil {
+		t.Fatalf("Want error (nil), but got (%e)", gotError)
 	}
 }
