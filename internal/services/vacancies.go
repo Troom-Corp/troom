@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+
 	"github.com/Troom-Corp/troom/internal/storage"
 )
 
@@ -10,6 +11,7 @@ type VacancyInterface interface {
 	Create() error
 	ReadAll() ([]Vacancy, error)
 	ReadById() (Vacancy, error)
+	SearchByQuery(string) ([]Vacancy, error)
 	Update() error
 	Delete() error
 }
@@ -52,6 +54,37 @@ func (v Vacancy) ReadById() (Vacancy, error) {
 
 	storage.SqlInterface.Close(conn)
 	return vacancy, nil
+}
+
+func (v Vacancy) SearchByQuery(searchQuery string) ([]Vacancy, error) {
+	var vacancies []Vacancy
+	conn := storage.SqlInterface.New()
+	searchFormat := "%" + searchQuery + "%"
+	searchByQuery := fmt.Sprintf("SELECT * FROM public.vacancies WHERE LOWER(title) LIKE '%s'", searchFormat)
+	rows, err := conn.Query(context.Background(), searchByQuery)
+
+	if err != nil {
+		storage.SqlInterface.Close(conn)
+		return []Vacancy{}, nil
+	}
+
+	for rows.Next() {
+		var queryVacancy Vacancy
+		err := rows.Scan(
+			&queryVacancy.VacancyId,
+			&queryVacancy.CompanyId,
+			&queryVacancy.Title,
+			&queryVacancy.Content,
+			&queryVacancy.FeedBack,
+			&queryVacancy.Tags)
+		if err != nil {
+			storage.SqlInterface.Close(conn)
+			return []Vacancy{}, err
+		}
+		vacancies = append(vacancies, queryVacancy)
+	}
+	storage.SqlInterface.Close(conn)
+	return vacancies, nil
 }
 
 func (v Vacancy) ReadAll() ([]Vacancy, error) {
