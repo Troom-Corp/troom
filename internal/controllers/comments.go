@@ -24,17 +24,20 @@ func (cc CommentControllers) CreateComment(c *fiber.Ctx) error {
 	return fiber.NewError(200, "Комментарий успешно создан")
 }
 
-func (cc CommentControllers) GetComment(c *fiber.Ctx) error {
-	postId, _ := strconv.Atoi(c.Query("post_id"))
-	if postId != 0 {
-		cc.CommentServices = services.Comment{PostId: postId}
-		commentsByPostId, err := cc.CommentServices.ReadByPostId()
-		if err != nil {
-			return fiber.NewError(404, "Комментарии отсутсвуют")
-		}
-		return c.JSON(commentsByPostId)
+func (cc CommentControllers) CommentByPostId(c *fiber.Ctx) error {
+	postId, err := strconv.Atoi(c.Params("post_id"))
+	if err != nil {
+		return fiber.NewError(500, "Неизвестная ошибка")
 	}
-	return c.JSON([]services.Comment{})
+
+	cc.CommentServices = services.Comment{PostId: postId}
+	comments, err := cc.CommentServices.ReadByPostId()
+
+	if err != nil {
+		return fiber.NewError(500, "Неизвестная ошибка")
+	}
+
+	return c.JSON(comments)
 }
 
 func (cc CommentControllers) DeleteComment(c *fiber.Ctx) error {

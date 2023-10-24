@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/Troom-Corp/troom/internal/services"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
@@ -10,19 +11,28 @@ type PostsControllers struct {
 	PostServices services.PostInterface
 }
 
-func (p PostsControllers) GetPost(c *fiber.Ctx) error {
-	postId, _ := strconv.Atoi(c.Query("post_id"))
-	p.PostServices = services.Post{PostId: postId}
-	if postId == 0 {
-		allPosts, err := p.PostServices.ReadAll()
-		if err != nil {
-			return fiber.NewError(404, "Ошибка при получении постов")
-		}
-		return c.JSON(allPosts)
-	}
-	post, err := p.PostServices.ReadById()
+func (p PostsControllers) PostId(c *fiber.Ctx) error {
+	postId, err := strconv.Atoi(c.Params(":id"))
 	if err != nil {
-		return fiber.NewError(404, "Пост не найден")
+		return fiber.NewError(500, "Неизвестная ошибка")
+	}
+
+	p.PostServices = services.Post{PostId: postId}
+	post, err := p.PostServices.ReadById()
+
+	if err != nil {
+		return fiber.NewError(500, "Неизвестная ошибка")
+	}
+
+	return c.JSON(post)
+}
+
+func (p PostsControllers) AllPost(c *fiber.Ctx) error {
+	p.PostServices = services.Post{}
+	post, err := p.PostServices.ReadAll()
+	if err != nil {
+		fmt.Println(err)
+		return fiber.NewError(500, "Неизвестная ошибка")
 	}
 	return c.JSON(post)
 }
