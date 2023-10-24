@@ -43,19 +43,7 @@ func (v Vacancy) ReadById() (Vacancy, error) {
 	conn := storage.SqlInterface.New()
 
 	readByIdQuery := fmt.Sprintf("SELECT * FROM public.vacancies WHERE vacancyid=%d", v.VacancyId)
-	rows, err := conn.Query(context.Background(), readByIdQuery)
-
-	if err != nil {
-		storage.SqlInterface.Close(conn)
-		return Vacancy{}, err
-	}
-
-	err = rows.Scan(&vacancy.VacancyId,
-		&vacancy.CompanyId,
-		&vacancy.Title,
-		&vacancy.Content,
-		&vacancy.FeedBack,
-		&vacancy.Tags)
+	err := conn.QueryRow(context.Background(), readByIdQuery).Scan(&vacancy.VacancyId, &vacancy.CompanyId, &vacancy.Title, &vacancy.Content, &vacancy.FeedBack, &vacancy.Tags)
 
 	if err != nil {
 		storage.SqlInterface.Close(conn)
