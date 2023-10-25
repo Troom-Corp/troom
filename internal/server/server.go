@@ -10,7 +10,9 @@ var userControllers = controllers.UserControllers{}
 var postControllers = controllers.PostsControllers{}
 var commentControllers = controllers.CommentControllers{}
 var authControllers = controllers.AuthControllers{}
+var companyControllers = controllers.CompanyControllers{}
 var vacanciesControllers = controllers.VacancyControllers{}
+
 
 func Start() {
 	app := fiber.New()
@@ -50,12 +52,21 @@ func Start() {
 	auth.Post("/sign_up", authControllers.SignUp)
 	auth.Post("/refresh_token", authControllers.RefreshToken)
 
+
+	// companies group
+	company := api.Group("/companies")
+	company.Get("/", companyControllers.AllCompanies)
+	company.Get("/:id", companyControllers.CompanyId)
+	company.Delete("/", companyControllers.DeleteCompany)
+	company.Patch("/", companyControllers.PatchCompany)
+
 	// vacancies group
 	vacancies := api.Group("/vacancies")
 	vacancies.Get("/", vacanciesControllers.AllVacancies)
 	vacancies.Get("/:id", vacanciesControllers.VacancyId)
 	vacancies.Patch("/", vacanciesControllers.PatchVacancy)
 	vacancies.Delete("/", vacanciesControllers.DeleteVacancy)
+
 
 	app.Listen(":5000")
 }

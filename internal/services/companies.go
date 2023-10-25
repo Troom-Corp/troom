@@ -9,7 +9,7 @@ import (
 )
 
 type CompanyInterface interface {
-	Create() error
+	Create() (int, error)
 	ReadAll() ([]Company, error)
 	ReadById() (Company, error)
 	SearchByQuery(string) ([]Company, error)
@@ -19,7 +19,7 @@ type CompanyInterface interface {
 
 type Company struct {
 	CompanyId    int
-	Name         string
+	CompanyName  string
 	CompanyBio   string
 	CompanyPhoto string
 	Contacts     string
@@ -36,7 +36,7 @@ func (c Company) Create() (int, error) {
 	conn := storage.SqlInterface.New()
 
 	createQuery := fmt.Sprintf("INSERT INTO public.companies (name, companybio, companyphoto, contacts, followers, location, employees, vacansies, reviews) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') RETURNING companyid",
-		c.Name,
+		c.CompanyName,
 		c.CompanyBio,
 		c.CompanyPhoto,
 		c.Contacts,
@@ -62,6 +62,7 @@ func (c Company) ReadAll() ([]Company, error) {
 		var company Company
 		err := rows.Scan(
 			&company.CompanyId,
+			&company.CompanyName,
 			&company.CompanyBio,
 			&company.CompanyPhoto,
 			&company.Contacts,
@@ -90,6 +91,7 @@ func (c Company) ReadById() (Company, error) {
 	readByIdQuery := fmt.Sprintf("SELECT * FROM public.companies WHERE companyid=%d", c.CompanyId)
 	conn.QueryRow(context.Background(), readByIdQuery).Scan(
 		&company.CompanyId,
+		&company.CompanyName,
 		&company.CompanyBio,
 		&company.CompanyPhoto,
 		&company.Contacts,
@@ -108,8 +110,10 @@ func (c Company) SearchByQuery(searchQuery string) ([]Company, error) {
 	var companies []Company
 	conn := storage.SqlInterface.New()
 
-	searchFormat := "%" + strings.ToLower(searchQuery) + "%"
-	searchByQuery := fmt.Sprintf("SELECT * FROM public.companies WHERE LOWER(name) LIKE '%s'", searchFormat)
+
+	searchFormat := "%" + searchQuery + "%"
+	searchByQuery := fmt.Sprintf("SELECT * FROM public.companies WHERE LOWER(companyname) LIKE LOWER('%s')", searchFormat)
+  
 	rows, err := conn.Query(context.Background(), searchByQuery)
 
 	if err != nil {
@@ -120,6 +124,7 @@ func (c Company) SearchByQuery(searchQuery string) ([]Company, error) {
 		var company Company
 		err = rows.Scan(
 			&company.CompanyId,
+			&company.CompanyName,
 			&company.CompanyBio,
 			&company.CompanyPhoto,
 			&company.Contacts,
@@ -144,8 +149,8 @@ func (c Company) SearchByQuery(searchQuery string) ([]Company, error) {
 func (c Company) Update() error {
 	conn := storage.SqlInterface.New()
 
-	updateByIdQuery := fmt.Sprintf("UPDATE public.companies SET name = '%s', companybio = '%s', companyphoto = '%s', contacts = '%s', followers = '%s', location = '%s', employees = '%s', vacansies = '%s', reviews = '%s' WHERE companyid = %d",
-		c.Name,
+	updateByIdQuery := fmt.Sprintf("UPDATE public.companies SET companyname = '%s', companybio = '%s', companyphoto = '%s', contacts = '%s', followers = '%s', location = '%s', employees = '%s', vacancies = '%s', reviews = '%s' WHERE companyid = %d",
+		c.CompanyName,
 		c.CompanyBio,
 		c.CompanyPhoto,
 		c.Contacts,
