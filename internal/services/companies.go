@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/Troom-Corp/troom/internal/storage"
 )
@@ -109,8 +110,10 @@ func (c Company) SearchByQuery(searchQuery string) ([]Company, error) {
 	var companies []Company
 	conn := storage.SqlInterface.New()
 
+
 	searchFormat := "%" + searchQuery + "%"
 	searchByQuery := fmt.Sprintf("SELECT * FROM public.companies WHERE LOWER(companyname) LIKE LOWER('%s')", searchFormat)
+  
 	rows, err := conn.Query(context.Background(), searchByQuery)
 
 	if err != nil {

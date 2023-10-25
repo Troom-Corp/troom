@@ -96,12 +96,13 @@ func (u User) ReadById() (User, error) {
 	return user, nil
 }
 
+// SearchByQuery Найти пользователей по searchQuery
 func (u User) SearchByQuery(searchQuery string) ([]User, error) {
 	var queryUsers []User
 	conn := storage.SqlInterface.New()
 
 	searchFormat := "%" + searchQuery + "%"
-	searchByQuery := fmt.Sprintf("SELECT * FROM public.users WHERE LOWER(firstname) LIKE '%s' OR LOWER(secondname) LIKE '%s'", searchFormat, searchFormat)
+	searchByQuery := fmt.Sprintf("SELECT * FROM public.users WHERE LOWER(firstname) LIKE LOWER('%s') OR LOWER(secondname) LIKE LOWER('%s')", searchFormat, searchFormat)
 	rows, err := conn.Query(context.Background(), searchByQuery)
 
 	if err != nil {
