@@ -3,8 +3,6 @@ package services
 import (
 	"context"
 	"fmt"
-	"strings"
-
 	"github.com/Troom-Corp/troom/internal/storage"
 )
 
@@ -103,8 +101,8 @@ func (u User) SearchByQuery(searchQuery string) ([]User, error) {
 	var queryUsers []User
 	conn := storage.SqlInterface.New()
 
-	searchFormat := "%" + strings.ToLower(searchQuery) + "%"
-	searchByQuery := fmt.Sprintf("SELECT * FROM public.users WHERE LOWER(firstname) LIKE '%s' OR LOWER(secondname) LIKE '%s'", searchFormat, searchFormat)
+	searchFormat := "%" + searchQuery + "%"
+	searchByQuery := fmt.Sprintf("SELECT * FROM public.users WHERE LOWER(firstname) LIKE LOWER('%s') OR LOWER(secondname) LIKE LOWER('%s')", searchFormat, searchFormat)
 	rows, err := conn.Query(context.Background(), searchByQuery)
 
 	if err != nil {

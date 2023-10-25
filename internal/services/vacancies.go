@@ -3,8 +3,6 @@ package services
 import (
 	"context"
 	"fmt"
-	"strings"
-
 	"github.com/Troom-Corp/troom/internal/storage"
 )
 
@@ -30,7 +28,7 @@ type Vacancy struct {
 func (v Vacancy) Create() error {
 	conn := storage.SqlInterface.New()
 
-	createQuery := fmt.Sprintf("INSERT INTO public.vacancies (title, content, feedback, tags) VALUE ('%s', '%s', '%s', '%s'))", v.Title, v.Content, v.FeedBack, v.Tags)
+	createQuery := fmt.Sprintf("INSERT INTO public.vacancies (title, content, feedback, tags) VALUES ('%s', '%s', '%s', '%s')", v.Title, v.Content, v.FeedBack, v.Tags)
 	_, err := conn.Query(context.Background(), createQuery)
 
 	if err != nil {
@@ -63,8 +61,8 @@ func (v Vacancy) ReadById() (Vacancy, error) {
 func (v Vacancy) SearchByQuery(searchQuery string) ([]Vacancy, error) {
 	var vacancies []Vacancy
 	conn := storage.SqlInterface.New()
-	searchFormat := "%" + strings.ToLower(searchQuery) + "%"
-	searchByQuery := fmt.Sprintf("SELECT * FROM public.vacancies WHERE LOWER(title) LIKE '%s'", searchFormat)
+	searchFormat := "%" + searchQuery + "%"
+	searchByQuery := fmt.Sprintf("SELECT * FROM public.vacancies WHERE LOWER(title) LIKE LOWER('%s')", searchFormat)
 	rows, err := conn.Query(context.Background(), searchByQuery)
 
 	if err != nil {
@@ -74,7 +72,7 @@ func (v Vacancy) SearchByQuery(searchQuery string) ([]Vacancy, error) {
 
 	for rows.Next() {
 		var queryVacancy Vacancy
-		err := rows.Scan(
+		err = rows.Scan(
 			&queryVacancy.VacancyId,
 			&queryVacancy.CompanyId,
 			&queryVacancy.Title,
@@ -128,7 +126,7 @@ func (v Vacancy) ReadAll() ([]Vacancy, error) {
 func (v Vacancy) Update() error {
 	conn := storage.SqlInterface.New()
 
-	updateByIdQuery := fmt.Sprintf("UPDATE public.vacancies SET title = '%s', content = '%s', feedback = '%s', tags = '%s' vacancyid = %d", v.Title, v.Content, v.FeedBack, v.Tags, v.VacancyId)
+	updateByIdQuery := fmt.Sprintf("UPDATE public.vacancies SET title = '%s', content = '%s', feedback = '%s', tags = '%s' WHERE vacancyid = %d", v.Title, v.Content, v.FeedBack, v.Tags, v.VacancyId)
 	_, err := conn.Query(context.Background(), updateByIdQuery)
 
 	if err != nil {
