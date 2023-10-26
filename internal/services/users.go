@@ -16,17 +16,22 @@ type UserInterface interface {
 }
 
 type User struct {
-	UserId      int
+	UserId   int
+	Password string
+	Role     string // защищенное поле
+
 	FirstName   string
 	SecondName  string
-	Email       string
-	Password    string
-	Photo       string
-	Bio         string
+	Gender      string
+	Age         int
+	dateOfBirth string
+	Location    string
 	Phone       string
-	Links       string
-	Followers   string
-	Subscribers string
+	Email       string
+	Links       string // массив с ссылками на соц сети
+	Job         string // то, кем является человек по специальности
+	Avatar      string
+	Bio         string
 }
 
 // Create Создать пользователя по входным данным и получить ID этого пользователя
@@ -34,7 +39,11 @@ func (u User) Create() (int, error) {
 	var userId int
 	conn := storage.SqlInterface.New()
 
-	createQuery := fmt.Sprintf("INSERT INTO public.users (firstname, secondname, email, password, photo, bio, phone, links, followers, subscribers) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') RETURNING userid", u.FirstName, u.SecondName, u.Email, u.Password, u.Photo, u.Bio, u.Phone, u.Links, u.Followers, u.Subscribers)
+	createQuery := fmt.Sprintf("INSERT INTO "+
+		"public.users (password, role, firstname, secondname, gender, age, date_of_birth, location, phone, email, links, job, avatar, bio) "+
+		"VALUES ('%s', 'user', '%s', '%s', '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') RETURNING userid",
+		u.Password, u.FirstName, u.SecondName, u.Gender, u.Age, u.dateOfBirth, u.Location, u.Phone, u.Email, u.Links, u.Job, u.Avatar, u.Bio)
+
 	rows, err := conn.Query(context.Background(), createQuery)
 	rows.Scan(&userId)
 
