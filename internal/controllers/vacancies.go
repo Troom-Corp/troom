@@ -1,9 +1,10 @@
 package controllers
 
 import (
+	"strconv"
+
 	"github.com/Troom-Corp/troom/internal/services"
 	"github.com/gofiber/fiber/v2"
-	"strconv"
 )
 
 type VacancyControllers struct {
@@ -11,6 +12,17 @@ type VacancyControllers struct {
 }
 
 func (v VacancyControllers) AllVacancies(c *fiber.Ctx) error {
+	// получаем все queries
+	searchQuery := c.Query("search_query")
+	if searchQuery != "" {
+		v.VacancyServices = services.Vacancy{}
+		resultVacansies, err := v.VacancyServices.SearchByQuery(searchQuery)
+		if err != nil {
+			return fiber.NewError(500, "Ошибка при поиске вакансий")
+		}
+		return c.JSON(resultVacansies)
+	}
+
 	v.VacancyServices = services.Vacancy{}
 	vacancies, err := v.VacancyServices.ReadAll()
 

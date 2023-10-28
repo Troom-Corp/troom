@@ -2,6 +2,8 @@ package services
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/Troom-Corp/troom/internal/storage"
 )
 
@@ -78,7 +80,7 @@ func (p Post) SearchByQuery(searchQuery string) ([]Post, error) {
 	var posts []Post
 	conn, err := storage.Sql.Open()
 
-	searchFormat := "%" + searchQuery + "%"
+	searchFormat := "%" + strings.ToLower(searchQuery) + "%"
 	searchByQuery := fmt.Sprintf("SELECT * FROM public.posts WHERE LOWER(title) LIKE '%s'", searchFormat)
 	err = conn.Select(&posts, searchByQuery)
 

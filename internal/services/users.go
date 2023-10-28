@@ -97,13 +97,11 @@ func (u User) ReadByNick() (User, error) {
 	return user, nil
 }
 
+// SearchByQuery Найти пользователей по searchQuery
 func (u User) SearchByQuery(searchQuery string) ([]User, error) {
 	var queryUsers []User
-	conn, err := storage.Sql.Open()
 
-	if err != nil {
-		return []User{}, fiber.NewError(500, "Ошибка при подключении к базе данных")
-	}
+	conn, err := storage.Sql.Open()
 
 	searchFormat := "%" + searchQuery + "%"
 	searchByQuery := fmt.Sprintf("SELECT * FROM users WHERE LOWER(firstname) LIKE LOWER('%s') OR LOWER(secondname) LIKE LOWER('%s')", searchFormat, searchFormat)
