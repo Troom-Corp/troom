@@ -1,7 +1,6 @@
 package services
 
 import (
-	"context"
 	"fmt"
 	"github.com/Troom-Corp/troom/internal/storage"
 )
@@ -24,94 +23,76 @@ type Vacancy struct {
 }
 
 func (v Vacancy) Create() error {
-	conn := storage.SqlInterface.New()
+	conn, err := storage.Sql.Open()
 
 	createQuery := fmt.Sprintf("INSERT INTO public.vacancies (title, content, feedback, tags) VALUE ('%s', '%s', '%s', '%s'))", v.Title, v.Content, v.FeedBack, v.Tags)
-	_, err := conn.Query(context.Background(), createQuery)
 
+	_, err = conn.Query(createQuery)
 	if err != nil {
-		storage.SqlInterface.Close(conn)
 		return err
 	}
 
-	storage.SqlInterface.Close(conn)
+	conn.Close()
 	return nil
 }
 
 func (v Vacancy) ReadById() (Vacancy, error) {
 	var vacancy Vacancy
-	conn := storage.SqlInterface.New()
+	conn, err := storage.Sql.Open()
 
 	readByIdQuery := fmt.Sprintf("SELECT * FROM public.vacancies WHERE vacancyid=%d", v.VacancyId)
-	err := conn.QueryRow(context.Background(), readByIdQuery).Scan(&vacancy.VacancyId, &vacancy.CompanyId, &vacancy.Title, &vacancy.Content, &vacancy.FeedBack, &vacancy.Tags)
+	err = conn.Get(&vacancy, readByIdQuery)
 
 	if err != nil {
-		storage.SqlInterface.Close(conn)
+		conn.Close()
 		return Vacancy{}, err
 	}
 
-	storage.SqlInterface.Close(conn)
+	conn.Close()
 	return vacancy, nil
 }
 
 func (v Vacancy) ReadAll() ([]Vacancy, error) {
 	var vacancies []Vacancy
-	conn := storage.SqlInterface.New()
+	conn, err := storage.Sql.Open()
 
-	rows, err := conn.Query(context.Background(), "SELECT * FROM public.vacancies")
+	err = conn.Select(&vacancies, "SELECT * FROM public.vacancies")
 
 	if err != nil {
-		storage.SqlInterface.Close(conn)
+		conn.Close()
 		return []Vacancy{}, err
 	}
 
-	for rows.Next() {
-		var vacancy Vacancy
-		err = rows.Scan(
-			&vacancy.VacancyId,
-			&vacancy.CompanyId,
-			&vacancy.Title,
-			&vacancy.Content,
-			&vacancy.FeedBack,
-			&vacancy.Tags)
-
-		if err != nil {
-			storage.SqlInterface.Close(conn)
-			return []Vacancy{}, err
-		}
-		vacancies = append(vacancies, vacancy)
-	}
-
-	storage.SqlInterface.Close(conn)
+	conn.Close()
 	return vacancies, nil
 }
 
 func (v Vacancy) Update() error {
-	conn := storage.SqlInterface.New()
+	conn, err := storage.Sql.Open()
 
 	updateByIdQuery := fmt.Sprintf("UPDATE public.vacancies SET title = '%s', content = '%s', feedback = '%s', tags = '%s'", v.Title, v.Content, v.FeedBack, v.Tags)
-	_, err := conn.Query(context.Background(), updateByIdQuery)
+	_, err = conn.Query(updateByIdQuery)
 
 	if err != nil {
-		storage.SqlInterface.Close(conn)
+		conn.Close()
 		return err
 	}
 
-	storage.SqlInterface.Close(conn)
+	conn.Close()
 	return nil
 }
 
 func (v Vacancy) Delete() error {
-	conn := storage.SqlInterface.New()
+	conn, err := storage.Sql.Open()
 
 	deleteByIdQuery := fmt.Sprintf("DELETE FROM public.vacancies WHERE vacancyid = %d", v.VacancyId)
-	_, err := conn.Query(context.Background(), deleteByIdQuery)
+	_, err = conn.Query(deleteByIdQuery)
 
 	if err != nil {
-		storage.SqlInterface.Close(conn)
+		conn.Close()
 		return err
 	}
 
-	storage.SqlInterface.Close(conn)
+	conn.Close()
 	return nil
 }

@@ -21,17 +21,17 @@ func (a AuthControllers) SignIn(c *fiber.Ctx) error {
 	}
 	a.SignInService = credentials
 
-	authUser, err := a.SignInService.ValidData()
+	userId, err := a.SignInService.ValidData()
 	if err != nil {
 		return err
 	}
 
 	c.Cookie(&fiber.Cookie{
 		Name:  "refresh_token",
-		Value: jwt.SignJWT(authUser.UserId),
+		Value: jwt.SignJWT(userId),
 	})
 
-	return c.JSON(jwt.SignJWT(authUser.UserId))
+	return c.JSON(jwt.SignJWT(userId))
 }
 
 func (a AuthControllers) SignUp(c *fiber.Ctx) error {
@@ -52,7 +52,9 @@ func (a AuthControllers) SignUp(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+
 	userId, err := newUser.Create()
+
 	if err != nil {
 		return fiber.NewError(500, "Ошибка при создании пользователя")
 	}

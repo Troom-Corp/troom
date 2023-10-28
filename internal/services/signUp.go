@@ -1,7 +1,6 @@
 package services
 
 import (
-	"context"
 	"fmt"
 	"github.com/Troom-Corp/troom/internal/storage"
 	"github.com/gofiber/fiber/v2"
@@ -41,22 +40,30 @@ func PasswordValidator(password string) bool {
 }
 
 func (s SignUpCredentials) ValidData() error {
-	var user User
-	conn := storage.SqlInterface.New()
+	var userEmail string
+	conn, err := storage.Sql.Open()
 
-	getUserQuery := fmt.Sprintf("SELECT * FROM public.users WHERE email='%s'", s.Email)
-	conn.QueryRow(context.Background(), getUserQuery).Scan(&user.UserId, &user.FirstName, &user.SecondName, &user.Email, &user.Password, &user.Photo, &user.Bio, &user.Phone, &user.Links, &user.Followers, &user.Subscribers)
+	if err != nil {
+		return fiber.NewError(500, "Ошибка при подключении к базе")
+	}
 
-	if user.Email != "" {
-		storage.SqlInterface.Close(conn)
+	getUserQuery := fmt.Sprintf("SELECT email FROM public.users WHERE email='%s'", s.Email)
+	rows, err := conn.Query(getUserQuery)
+
+	for rows.Next() {
+		err = rows.Scan(&userEmail)
+	}
+
+	if userEmail != "" {
+		conn.Close()
 		return fiber.NewError(409, "Пользователь с таким email уже существует")
 	}
 
 	if !PasswordValidator(s.Password) {
-		storage.SqlInterface.Close(conn)
+		conn.Close()
 		return fiber.NewError(409, "Пароль должен соотвествовать требованиям")
 	}
 
-	storage.SqlInterface.Close(conn)
+	conn.Close()
 	return nil
 }

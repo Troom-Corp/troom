@@ -1,7 +1,6 @@
 package services
 
 import (
-	"context"
 	"fmt"
 	"github.com/Troom-Corp/troom/internal/pkg"
 	"github.com/Troom-Corp/troom/internal/storage"
@@ -9,7 +8,7 @@ import (
 )
 
 type SignInInterface interface {
-	ValidData() (User, error)
+	ValidData() (int, error)
 }
 
 type SignInCredentials struct {
@@ -17,18 +16,28 @@ type SignInCredentials struct {
 	Password string
 }
 
-func (s SignInCredentials) ValidData() (User, error) {
-	var user User
-	conn := storage.SqlInterface.New()
+func (s SignInCredentials) ValidData() (int, error) {
+	var userId int
+	var userPassword string
+	conn, err := storage.Sql.Open()
 
-	getUserQuery := fmt.Sprintf("SELECT * FROM public.users WHERE email='%s'", s.Email)
-	conn.QueryRow(context.Background(), getUserQuery).Scan(&user.UserId, &user.FirstName, &user.SecondName, &user.Email, &user.Password, &user.Photo, &user.Bio, &user.Phone, &user.Links, &user.Followers, &user.Subscribers)
-
-	if pkg.Decode([]byte(user.Password), []byte(s.Password)) != nil {
-		storage.SqlInterface.Close(conn)
-		return User{}, fiber.NewError(401, "Неправильные данные пользователя")
+	if err != nil {
+		return userId, err
 	}
 
-	storage.SqlInterface.Close(conn)
-	return user, nil
+	getUserQuery := fmt.Sprintf("SELECT userid, password FROM public.users WHERE email='%s'", s.Email)
+
+	rows, err := conn.Query(getUserQuery)
+
+	for rows.Next() {
+		rows.Scan(&userId, &userPassword)
+	}
+
+	if pkg.Decode([]byte(userPassword), []byte(s.Password)) != nil {
+		conn.Close()
+		return 0, fiber.NewError(401, "Неправильные данные пользователя")
+	}
+
+	conn.Close()
+	return userId, nil
 }

@@ -1,7 +1,6 @@
 package services
 
 import (
-	"context"
 	"fmt"
 	"github.com/Troom-Corp/troom/internal/storage"
 )
@@ -16,161 +15,139 @@ type UserInterface interface {
 }
 
 type User struct {
-	UserId   int
-	Password string
-	Role     string // защищенное поле
-
-	FirstName   string
-	SecondName  string
-	Gender      string
-	Age         int
-	dateOfBirth string
-	Location    string
-	Phone       string
-	Email       string
-	Links       string // массив с ссылками на соц сети
-	Job         string // то, кем является человек по специальности
-	Avatar      string
-	Bio         string
+	UserId      int    `db:"userid"`
+	Password    string `db:"password"`
+	Role        string `db:"role"`
+	FirstName   string `db:"firstname"`
+	SecondName  string `db:"secondname"`
+	Gender      string `db:"gender"`
+	Age         int    `db:"age"`
+	DateOfBirth string `db:"dateofbirth"`
+	Location    string `db:"location"`
+	Phone       string `db:"phone"`
+	Email       string `db:"email" `
+	Links       string `db:"links"`
+	Job         string `db:"job"`
+	Avatar      string `db:"avatar"`
+	Bio         string `db:"bio"`
 }
 
 // Create Создать пользователя по входным данным и получить ID этого пользователя
 func (u User) Create() (int, error) {
 	var userId int
-	conn := storage.SqlInterface.New()
+	conn, err := storage.Sql.Open()
+	if err != nil {
+		return 0, err
+	}
 
 	createQuery := fmt.Sprintf("INSERT INTO "+
-		"public.users (password, role, firstname, secondname, gender, age, date_of_birth, location, phone, email, links, job, avatar, bio) "+
+		"public.users (password, role, firstname, secondname, gender, age, dateofbirth, location, phone, email, links, job, avatar, bio) "+
 		"VALUES ('%s', 'user', '%s', '%s', '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') RETURNING userid",
-		u.Password, u.FirstName, u.SecondName, u.Gender, u.Age, u.dateOfBirth, u.Location, u.Phone, u.Email, u.Links, u.Job, u.Avatar, u.Bio)
+		u.Password, u.FirstName, u.SecondName, u.Gender, u.Age, u.DateOfBirth, u.Location, u.Phone, u.Email, u.Links, u.Job, u.Avatar, u.Bio)
 
-	rows, err := conn.Query(context.Background(), createQuery)
-	rows.Scan(&userId)
-
-	storage.SqlInterface.Close(conn)
+	conn.Get(&userId, createQuery)
+	err = conn.Close()
 	return userId, err
 }
 
 // ReadAll Прочитать всех пользователей
 func (u User) ReadAll() ([]User, error) {
 	var users []User
-	conn := storage.SqlInterface.New()
-
-	rows, err := conn.Query(context.Background(), "SELECT * FROM public.users;")
+	conn, err := storage.Sql.Open()
 
 	if err != nil {
-		storage.SqlInterface.Close(conn)
 		return []User{}, err
 	}
 
-	for rows.Next() {
-		var user User
-		err = rows.Scan(
-			&user.UserId,
-			&user.FirstName,
-			&user.SecondName,
-			&user.Email,
-			&user.Password,
-			&user.Photo,
-			&user.Bio,
-			&user.Phone,
-			&user.Links,
-			&user.Followers,
-			&user.Subscribers)
-		if err != nil {
-			storage.SqlInterface.Close(conn)
-			return []User{}, err
-		}
-		users = append(users, user)
+	err = conn.Select(&users, "SELECT * FROM public.users")
+
+	if err != nil {
+		fmt.Println(err)
+		conn.Close()
+		return []User{}, err
 	}
 
-	storage.SqlInterface.Close(conn)
+	conn.Close()
 	return users, nil
 }
 
 // ReadById Прочитать одного пользователя по ID
 func (u User) ReadById() (User, error) {
 	var user User
-	conn := storage.SqlInterface.New()
-
-	readByIdQuery := fmt.Sprintf("SELECT * FROM public.users WHERE userid=%d", u.UserId)
-	err := conn.QueryRow(context.Background(), readByIdQuery).Scan(&user.UserId, &user.FirstName, &user.SecondName, &user.Email, &user.Password, &user.Photo, &user.Bio, &user.Phone, &user.Links, &user.Followers, &user.Subscribers)
+	conn, err := storage.Sql.Open()
 
 	if err != nil {
-		storage.SqlInterface.Close(conn)
 		return User{}, err
 	}
 
-	storage.SqlInterface.Close(conn)
+	readByIdQuery := fmt.Sprintf("SELECT * FROM public.users WHERE userid=%d", u.UserId)
+	err = conn.Get(&user, readByIdQuery)
+
+	if err != nil {
+		conn.Close()
+		return User{}, err
+	}
+
+	conn.Close()
 	return user, nil
 }
 
 func (u User) SearchByQuery(searchQuery string) ([]User, error) {
 	var queryUsers []User
-	conn := storage.SqlInterface.New()
+	conn, err := storage.Sql.Open()
+
+	if err != nil {
+		return []User{}, err
+	}
 
 	searchFormat := "%" + searchQuery + "%"
 	searchByQuery := fmt.Sprintf("SELECT * FROM public.users WHERE LOWER(firstname) LIKE '%s' OR LOWER(secondname) LIKE '%s'", searchFormat, searchFormat)
-	rows, err := conn.Query(context.Background(), searchByQuery)
+	err = conn.Select(&queryUsers, searchByQuery)
 
 	if err != nil {
-		storage.SqlInterface.Close(conn)
+		conn.Close()
 		return []User{}, nil
 	}
 
-	for rows.Next() {
-		var queryUser User
-		err = rows.Scan(
-			&queryUser.UserId,
-			&queryUser.FirstName,
-			&queryUser.SecondName,
-			&queryUser.Email,
-			&queryUser.Password,
-			&queryUser.Photo,
-			&queryUser.Bio,
-			&queryUser.Phone,
-			&queryUser.Links,
-			&queryUser.Followers,
-			&queryUser.Subscribers)
-		if err != nil {
-			storage.SqlInterface.Close(conn)
-			return []User{}, err
-		}
-		queryUsers = append(queryUsers, queryUser)
-	}
-
-	storage.SqlInterface.Close(conn)
+	conn.Close()
 	return queryUsers, nil
 }
 
 // Update Обновить данные пользователя по ID
 func (u User) Update() error {
-	conn := storage.SqlInterface.New()
-
-	updateByIdQuery := fmt.Sprintf("UPDATE public.users SET firstname = '%s', secondname = '%s', email = '%s', password = '%s', photo = '%s', bio = '%s', phone = '%s', links = '%s', followers = '%s', subscribers = '%s' WHERE userid = %d", u.FirstName, u.SecondName, u.Email, u.Password, u.Photo, u.Bio, u.Phone, u.Links, u.Followers, u.Subscribers, u.UserId)
-	_, err := conn.Query(context.Background(), updateByIdQuery)
-
+	conn, err := storage.Sql.Open()
 	if err != nil {
-		storage.SqlInterface.Close(conn)
 		return err
 	}
 
-	storage.SqlInterface.Close(conn)
+	updateByIdQuery := fmt.Sprintf("UPDATE public.users SET firstname = '%s', secondname = '%s', email = '%s', password = '%s', photo = '%s', bio = '%s', phone = '%s', links = '%s', followers = '%s', subscribers = '%s' WHERE userid = %d", u.FirstName, u.SecondName, u.Email, u.Password, u.Avatar, u.Bio, u.Phone, u.Links, u.Role, u.DateOfBirth, u.UserId)
+	_, err = conn.Query(updateByIdQuery)
+
+	if err != nil {
+		conn.Close()
+		return err
+	}
+
+	conn.Close()
 	return nil
 }
 
 // Delete Удалить все данные пользователя по ID
 func (u User) Delete() error {
-	conn := storage.SqlInterface.New()
-
-	deleteByIdQuery := fmt.Sprintf("DELETE FROM public.users WHERE userid = %d", u.UserId)
-	_, err := conn.Query(context.Background(), deleteByIdQuery)
+	conn, err := storage.Sql.Open()
 
 	if err != nil {
-		storage.SqlInterface.Close(conn)
 		return err
 	}
 
-	storage.SqlInterface.Close(conn)
+	deleteByIdQuery := fmt.Sprintf("DELETE FROM public.users WHERE userid = %d", u.UserId)
+	_, err = conn.Query(deleteByIdQuery)
+
+	if err != nil {
+		conn.Close()
+		return err
+	}
+
+	conn.Close()
 	return nil
 }

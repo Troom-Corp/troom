@@ -1,7 +1,6 @@
 package services
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/Troom-Corp/troom/internal/storage"
@@ -32,7 +31,7 @@ type Company struct {
 // Create Создать компанию по входным данным и получить ID этой компании
 func (c Company) Create() (int, error) {
 	var companyId int
-	conn := storage.SqlInterface.New()
+	conn, err := storage.Sql.Open()
 
 	createQuery := fmt.Sprintf("INSERT INTO public.companies (name, companybio, companyphoto, contacts, followers, location, employees, vacansies, reviews) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') RETURNING companyid",
 		c.CompanyName,
@@ -44,107 +43,63 @@ func (c Company) Create() (int, error) {
 		c.Employees,
 		c.Vacancies,
 		c.Reviews)
-	rows, err := conn.Query(context.Background(), createQuery)
-	rows.Scan(&companyId)
+	err = conn.Get(&companyId, createQuery)
 
-	storage.SqlInterface.Close(conn)
+	conn.Close()
 	return companyId, err
 }
 
 // ReadAll Прочитать все компании и вернуть их слайсом
 func (c Company) ReadAll() ([]Company, error) {
 	var companies []Company
-	conn := storage.SqlInterface.New()
+	conn, err := storage.Sql.Open()
 
-	rows, _ := conn.Query(context.Background(), "SELECT * FROM public.companies;")
-	for rows.Next() {
-		var company Company
-		err := rows.Scan(
-			&company.CompanyId,
-			&company.CompanyName,
-			&company.CompanyBio,
-			&company.CompanyPhoto,
-			&company.Contacts,
-			&company.Followers,
-			&company.Location,
-			&company.Employees,
-			&company.Vacancies,
-			&company.Reviews)
-
-		if err != nil {
-			storage.SqlInterface.Close(conn)
-			return []Company{}, err
-		}
-		companies = append(companies, company)
+	if err != nil {
+		return []Company{}, err
 	}
 
-	storage.SqlInterface.Close(conn)
+	err = conn.Select(&companies, "SELECT * FROM public.companies;")
+
+	conn.Close()
 	return companies, nil
 }
 
 // ReadById Прочитать одну компанию по ID
 func (c Company) ReadById() (Company, error) {
 	var company Company
-	conn := storage.SqlInterface.New()
+	conn, err := storage.Sql.Open()
+	if err != nil {
+		return Company{}, err
+	}
 
 	readByIdQuery := fmt.Sprintf("SELECT * FROM public.companies WHERE companyid=%d", c.CompanyId)
-	conn.QueryRow(context.Background(), readByIdQuery).Scan(
-		&company.CompanyId,
-		&company.CompanyName,
-		&company.CompanyBio,
-		&company.CompanyPhoto,
-		&company.Contacts,
-		&company.Followers,
-		&company.Location,
-		&company.Employees,
-		&company.Vacancies,
-		&company.Reviews)
+	err = conn.Get(&company, readByIdQuery)
 
-	storage.SqlInterface.Close(conn)
+	conn.Close()
 	return company, nil
 }
 
 // SearchByQuery Поиск компаний по названию
 func (c Company) SearchByQuery(searchQuery string) ([]Company, error) {
 	var companies []Company
-	conn := storage.SqlInterface.New()
+	conn, err := storage.Sql.Open()
 
 	searchFormat := "%" + searchQuery + "%"
 	searchByQuery := fmt.Sprintf("SELECT * FROM public.companies WHERE LOWER(companyname) LIKE LOWER('%s')", searchFormat)
-	rows, err := conn.Query(context.Background(), searchByQuery)
+	err = conn.Select(&companies, searchByQuery)
 
 	if err != nil {
+		conn.Close()
 		return []Company{}, nil
 	}
 
-	for rows.Next() {
-		var company Company
-		err = rows.Scan(
-			&company.CompanyId,
-			&company.CompanyName,
-			&company.CompanyBio,
-			&company.CompanyPhoto,
-			&company.Contacts,
-			&company.Followers,
-			&company.Location,
-			&company.Employees,
-			&company.Vacancies,
-			&company.Reviews)
-
-		if err != nil {
-			storage.SqlInterface.Close(conn)
-			return []Company{}, err
-		}
-		companies = append(companies, company)
-	}
-
-	storage.SqlInterface.Close(conn)
+	conn.Close()
 	return companies, nil
 }
 
 // Update Обновить данные компании по ID
 func (c Company) Update() error {
-	conn := storage.SqlInterface.New()
+	conn, err := storage.Sql.Open()
 
 	updateByIdQuery := fmt.Sprintf("UPDATE public.companies SET companyname = '%s', companybio = '%s', companyphoto = '%s', contacts = '%s', followers = '%s', location = '%s', employees = '%s', vacancies = '%s', reviews = '%s' WHERE companyid = %d",
 		c.CompanyName,
@@ -157,29 +112,29 @@ func (c Company) Update() error {
 		c.Vacancies,
 		c.Reviews,
 		c.CompanyId)
-	_, err := conn.Query(context.Background(), updateByIdQuery)
+	_, err = conn.Query(updateByIdQuery)
 
 	if err != nil {
-		storage.SqlInterface.Close(conn)
+		conn.Close()
 		return err
 	}
 
-	storage.SqlInterface.Close(conn)
+	conn.Close()
 	return nil
 }
 
 // Delete Удалить все данные компании по ID
 func (c Company) Delete() error {
-	conn := storage.SqlInterface.New()
+	conn, err := storage.Sql.Open()
 
 	deleteByIdQuery := fmt.Sprintf("DELETE FROM public.companies WHERE companyid = %d", c.CompanyId)
-	_, err := conn.Query(context.Background(), deleteByIdQuery)
+	_, err = conn.Query(deleteByIdQuery)
 
 	if err != nil {
-		storage.SqlInterface.Close(conn)
+		conn.Close()
 		return err
 	}
 
-	storage.SqlInterface.Close(conn)
+	conn.Close()
 	return nil
 }

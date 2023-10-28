@@ -13,7 +13,6 @@ var authControllers = controllers.AuthControllers{}
 var companyControllers = controllers.CompanyControllers{}
 var vacanciesControllers = controllers.VacancyControllers{}
 
-
 func Start() {
 	app := fiber.New()
 	api := app.Group("/api")
@@ -52,7 +51,6 @@ func Start() {
 	auth.Post("/sign_up", authControllers.SignUp)
 	auth.Post("/refresh_token", authControllers.RefreshToken)
 
-
 	// companies group
 	company := api.Group("/companies")
 	company.Get("/", companyControllers.AllCompanies)
@@ -66,7 +64,6 @@ func Start() {
 	vacancies.Get("/:id", vacanciesControllers.VacancyId)
 	vacancies.Patch("/", vacanciesControllers.PatchVacancy)
 	vacancies.Delete("/", vacanciesControllers.DeleteVacancy)
-
 
 	app.Listen(":5000")
 }
