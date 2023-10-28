@@ -1,11 +1,11 @@
 package controllers
 
 import (
-	jwt "github.com/Russian-LinkedIn/jwt_token-service"
 	"github.com/Troom-Corp/troom/internal/pkg"
 	"github.com/Troom-Corp/troom/internal/services"
 	"github.com/gofiber/fiber/v2"
 	"strings"
+	"time"
 )
 
 type AuthControllers struct {
@@ -26,12 +26,15 @@ func (a AuthControllers) SignIn(c *fiber.Ctx) error {
 		return err
 	}
 
+	accessToken, _ := pkg.CreateAccessToken(userId)
+	refreshToken, _ := pkg.CreateRefreshToken(userId)
+
 	c.Cookie(&fiber.Cookie{
 		Name:  "refresh_token",
-		Value: jwt.SignJWT(userId),
+		Value: refreshToken,
 	})
 
-	return c.JSON(jwt.SignJWT(userId))
+	return c.JSON(accessToken)
 }
 
 func (a AuthControllers) SignUp(c *fiber.Ctx) error {
@@ -46,7 +49,7 @@ func (a AuthControllers) SignUp(c *fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(500, "Ошибка при создании пользователя")
 	}
-	newUser := services.User{FirstName: credentials.FirstName, SecondName: credentials.SecondName, Email: credentials.Email, Password: string(hashedPassword)}
+	newUser := services.User{Nick: credentials.Nick, FirstName: credentials.FirstName, SecondName: credentials.SecondName, Email: credentials.Email, Password: string(hashedPassword)}
 
 	err = a.SignUpService.ValidData()
 	if err != nil {
@@ -59,16 +62,37 @@ func (a AuthControllers) SignUp(c *fiber.Ctx) error {
 		return fiber.NewError(500, "Ошибка при создании пользователя")
 	}
 
+	accessToken, _ := pkg.CreateAccessToken(userId)
+	refreshToken, _ := pkg.CreateRefreshToken(userId)
+
 	c.Cookie(&fiber.Cookie{
 		Name:  "refresh_token",
-		Value: jwt.SignJWT(userId),
+		Value: refreshToken,
 	})
 
-	return c.JSON(jwt.SignJWT(userId))
+	return c.JSON(accessToken)
 }
 
 func (a AuthControllers) RefreshToken(c *fiber.Ctx) error {
-	token := strings.SplitN(c.Get("authorization"), " ", 2)[1]
-	userId, _ := jwt.GetIdentity(token)
-	return c.JSON(jwt.SignJWT(userId))
+	authHeader := c.Get("authorization")
+	if authHeader == "Bearer" {
+		return fiber.NewError(401, "Access токена нет")
+	}
+	headerToken := strings.SplitN(authHeader, " ", 2)[1]
+	userRefreshToken := c.Cookies("refresh_token")
+	if userRefreshToken == "" {
+		return fiber.NewError(401, "Refresh токена нет")
+	}
+	accessUserId, _, _ := pkg.GetIdentity(headerToken)
+	refreshUserId, expTime, _ := pkg.GetIdentity(userRefreshToken)
+	if expTime < time.Now().Unix() {
+		c.ClearCookie("refresh_token")
+	}
+
+	if accessUserId != refreshUserId {
+		return fiber.NewError(401, "Вы пытаетесь обновить чужой токен")
+	}
+
+	newAccessToken, _ := pkg.CreateAccessToken(refreshUserId)
+	return c.JSON(newAccessToken)
 }

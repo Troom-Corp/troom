@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/Troom-Corp/troom/internal/services"
@@ -61,7 +60,6 @@ func (comp CompanyControllers) AllCompanies(c *fiber.Ctx) error {
 	comp.CompanyServices = services.Company{}
 	allCompanies, err := comp.CompanyServices.ReadAll()
 	if err != nil {
-		fmt.Println(err)
 		return fiber.NewError(404, "Ошибка при поиске компаний")
 	}
 

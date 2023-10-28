@@ -5,22 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5b6e300a-60f8-4331-9479-43a8c1408980" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/troom.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/troom.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/controllers/auth.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/controllers/auth.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/middleware/middleware.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/middleware/middleware.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/controllers/companies.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/controllers/companies.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/controllers/posts.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/controllers/posts.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/controllers/users.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/controllers/users.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/pkg/token.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/pkg/token.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/server/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/server/server.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/comments.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/comments.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/companies.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/companies.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/posts.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/posts.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/signIn.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/signIn.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/services/signUp.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/signUp.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/services/users.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/users.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/vacancies.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/vacancies.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/storage/store.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/storage/store.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,7 +55,7 @@
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/oazis/troom&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/oazis/Documents/troom&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;
   }

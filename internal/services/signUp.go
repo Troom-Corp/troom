@@ -15,6 +15,7 @@ type SignUpInterface interface {
 type SignUpCredentials struct {
 	FirstName  string
 	SecondName string
+	Nick       string
 	Email      string
 	Password   string
 }
@@ -40,23 +41,32 @@ func PasswordValidator(password string) bool {
 }
 
 func (s SignUpCredentials) ValidData() error {
-	var userEmail string
+	var userEmail, userNick string
 	conn, err := storage.Sql.Open()
 
 	if err != nil {
 		return fiber.NewError(500, "Ошибка при подключении к базе")
 	}
 
-	getUserQuery := fmt.Sprintf("SELECT email FROM public.users WHERE email='%s'", s.Email)
+	getUserQuery := fmt.Sprintf("SELECT email, nick FROM public.users WHERE email='%s' OR nick='%s'", s.Email, s.Nick)
 	rows, err := conn.Query(getUserQuery)
 
 	for rows.Next() {
-		err = rows.Scan(&userEmail)
+		err = rows.Scan(&userEmail, &userNick)
 	}
 
-	if userEmail != "" {
+	if userNick == s.Nick {
+		conn.Close()
+		return fiber.NewError(409, "Пользователь с таким nick уже существует")
+	}
+
+	if userEmail == s.Email {
 		conn.Close()
 		return fiber.NewError(409, "Пользователь с таким email уже существует")
+	}
+
+	if len(userNick) > 20 {
+		return fiber.NewError(409, "Nick должен соотвествовать требованиям")
 	}
 
 	if !PasswordValidator(s.Password) {

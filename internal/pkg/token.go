@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
 )
@@ -39,6 +40,7 @@ func GetIdentity(token string) (int, int64, error) {
 	identity, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		return KEY, nil
 	})
+	fmt.Println(err)
 
 	if err != nil {
 		return 0, 0, err

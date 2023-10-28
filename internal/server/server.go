@@ -27,7 +27,7 @@ func Start() {
 	// users group
 	users := api.Group("/users")
 	users.Get("/", userControllers.AllUsers)
-	users.Get("/:id", userControllers.UserId)
+	users.Get("/@:nick", userControllers.UserNick)
 	users.Delete("/", userControllers.DeleteUser)
 	users.Patch("/", userControllers.PatchUser)
 
