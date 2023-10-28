@@ -6,14 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="5b6e300a-60f8-4331-9479-43a8c1408980" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/controllers/auth.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/controllers/auth.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/controllers/companies.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/controllers/companies.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/controllers/posts.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/controllers/posts.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/controllers/users.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/controllers/users.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/pkg/token.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/pkg/token.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/server/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/server/server.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/signUp.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/signUp.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/users.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/users.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/services/companies.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/companies.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/services/vacancies.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/vacancies.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,23 +38,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.automatic.dependencies.download&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/oazis/Documents/troom&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultGoTemplateProperty": "Go File",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.automatic.dependencies.download": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "go.import.settings.migrated": "true",
+    "go.sdk.automatically.set": "true",
+    "last_opened_file_path": "/home/oazis",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="go build github.com/Troom-Corp/troom/cmd/troom" type="GoApplicationRunConfiguration" factoryName="Go Application" nameIsGenerated="true">
       <module name="troom" />

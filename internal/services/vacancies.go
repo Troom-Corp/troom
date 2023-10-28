@@ -27,7 +27,6 @@ type Vacancy struct {
 func (v Vacancy) Create() error {
 	conn, err := storage.Sql.Open()
 
-
 	createQuery := fmt.Sprintf("INSERT INTO public.vacancies (title, content, feedback, tags) VALUE ('%s', '%s', '%s', '%s'))", v.Title, v.Content, v.FeedBack, v.Tags)
 
 	_, err = conn.Query(createQuery)
@@ -59,13 +58,13 @@ func (v Vacancy) ReadById() (Vacancy, error) {
 // SearchByQuery Найти вакансии по searchQuery
 func (v Vacancy) SearchByQuery(searchQuery string) ([]Vacancy, error) {
 	var vacancies []Vacancy
-	conn := storage.SqlInterface.New()
+	conn, _ := storage.Sql.Open()
 	searchFormat := "%" + searchQuery + "%"
 	searchByQuery := fmt.Sprintf("SELECT * FROM public.vacancies WHERE LOWER(title) LIKE LOWER('%s')", searchFormat)
-	rows, err := conn.Query(context.Background(), searchByQuery)
+	rows, err := conn.Query(searchByQuery)
 
 	if err != nil {
-		storage.SqlInterface.Close(conn)
+		conn.Close()
 		return []Vacancy{}, nil
 	}
 
@@ -79,12 +78,12 @@ func (v Vacancy) SearchByQuery(searchQuery string) ([]Vacancy, error) {
 			&queryVacancy.FeedBack,
 			&queryVacancy.Tags)
 		if err != nil {
-			storage.SqlInterface.Close(conn)
+			conn.Close()
 			return []Vacancy{}, err
 		}
 		vacancies = append(vacancies, queryVacancy)
 	}
-	storage.SqlInterface.Close(conn)
+	conn.Close()
 	return vacancies, nil
 }
 
@@ -108,10 +107,8 @@ func (v Vacancy) ReadAll() ([]Vacancy, error) {
 func (v Vacancy) Update() error {
 	conn, err := storage.Sql.Open()
 
-
 	updateByIdQuery := fmt.Sprintf("UPDATE public.vacancies SET title = '%s', content = '%s', feedback = '%s', tags = '%s'", v.Title, v.Content, v.FeedBack, v.Tags)
 	_, err = conn.Query(updateByIdQuery)
-
 
 	if err != nil {
 		conn.Close()

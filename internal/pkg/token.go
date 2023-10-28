@@ -43,7 +43,7 @@ func GetIdentity(token string) (int, int64, error) {
 
 	if err != nil {
 		return 0, 0, err
-
+	}
 
 	payload := identity.Claims.(jwt.MapClaims)
 	userId := int(payload["userId"].(float64))

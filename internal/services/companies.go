@@ -2,8 +2,6 @@ package services
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/Troom-Corp/troom/internal/storage"
 )
 
