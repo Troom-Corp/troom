@@ -10,17 +10,14 @@ type UserControllers struct {
 	UserServices services.UserInterface
 }
 
-func (u UserControllers) UserId(c *fiber.Ctx) error {
-	userId, err := strconv.Atoi(c.Params("id"))
-	if err != nil {
-		return fiber.NewError(500, "Неизвестная ошибка")
-	}
+func (u UserControllers) UserNick(c *fiber.Ctx) error {
+	userNick := c.Params("nick")
 
-	u.UserServices = services.User{UserId: userId}
-	user, err := u.UserServices.ReadById()
+	u.UserServices = services.User{Nick: userNick}
+	user, err := u.UserServices.ReadByNick()
 
 	if err != nil {
-		return fiber.NewError(500, "Неизвестная ошибка")
+		return err
 	}
 
 	return c.JSON(user)

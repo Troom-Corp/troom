@@ -1,9 +1,7 @@
-// Пакет для работы с jwt tokens
 package pkg
 
 import (
 	"time"
-
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -34,6 +32,7 @@ func CreateRefreshToken(userId int) (string, error) {
 		"expiredTime": int64(time.Now().Unix()) + TOKEN_TIME_REFRESH, // expiredTime для безопасности
 	}).SignedString(KEY)
 	return token, err
+
 }
 
 // GetIdentity Расшифровываем токен и получаем из него данные (identity)
@@ -42,10 +41,15 @@ func GetIdentity(token string) (int, int64, error) {
 		return KEY, nil
 	})
 
+	if err != nil {
+		return 0, 0, err
+
+
 	payload := identity.Claims.(jwt.MapClaims)
 	userId := int(payload["userId"].(float64))
 	expiredTime := int64(payload["expiredTime"].(float64))
 
-	// Возвращаем payload пользователя в удобных типах данных
-	return userId, expiredTime, err
+
+	return userId, expiredTime, nil
+
 }

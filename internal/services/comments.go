@@ -1,7 +1,6 @@
 package services
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/Troom-Corp/troom/internal/storage"
@@ -25,76 +24,64 @@ type Comment struct {
 
 // Create Создать комментарий по входным данным
 func (c Comment) Create() error {
-	conn := storage.SqlInterface.New()
+	conn, err := storage.Sql.Open()
 
 	createQuery := fmt.Sprintf("INSERT INTO public.comments (postid, userid, text, likes, replies) VALUES (%d, %d, '%s', '%s', '%s')", c.PostId, c.UserId, c.Text, c.Likes, c.Replies)
-	_, err := conn.Query(context.Background(), createQuery)
+	_, err = conn.Query(createQuery)
 
 	if err != nil {
-		storage.SqlInterface.Close(conn)
+		conn.Close()
 		return err
 	}
 
-	storage.SqlInterface.Close(conn)
+	conn.Close()
 	return nil
 }
 
 // ReadByPostId Прочитать все коментарии
 func (c Comment) ReadByPostId() ([]Comment, error) {
 	var comments []Comment
-	conn := storage.SqlInterface.New()
+	conn, err := storage.Sql.Open()
 
-	byPostIdQuery := fmt.Sprintf("SELECT * FROM public.comments WHERE postid=%d", c.PostId)
-	rows, _ := conn.Query(context.Background(), byPostIdQuery)
-	for rows.Next() {
-		var comment Comment
-		err := rows.Scan(
-			&comment.CommentId,
-			&comment.PostId,
-			&comment.UserId,
-			&comment.Text,
-			&comment.Likes,
-			&comment.Replies)
-
-		if err != nil {
-			storage.SqlInterface.Close(conn)
-			return []Comment{}, err
-		}
-		comments = append(comments, comment)
+	if err != nil {
+		return []Comment{}, err
 	}
 
-	storage.SqlInterface.Close(conn)
+	byPostIdQuery := fmt.Sprintf("SELECT * FROM public.comments WHERE postid=%d", c.PostId)
+	err = conn.Select(&comments, byPostIdQuery)
+
+	conn.Close()
 	return comments, nil
 }
 
 // Update Обновить данные коментария по ID
 func (c Comment) Update() error {
-	conn := storage.SqlInterface.New()
+	conn, err := storage.Sql.Open()
 
 	updateByIdQuery := fmt.Sprintf("UPDATE public.comments SET text = '%s', likes = '%s', replies = '%s' WHERE commentid=%d", c.Text, c.Likes, c.Replies, c.CommentId)
-	_, err := conn.Query(context.Background(), updateByIdQuery)
+	_, err = conn.Query(updateByIdQuery)
 
 	if err != nil {
-		storage.SqlInterface.Close(conn)
+		conn.Close()
 		return err
 	}
 
-	storage.SqlInterface.Close(conn)
+	conn.Close()
 	return nil
 }
 
 // Delete Удалить комментарий по ID
 func (c Comment) Delete() error {
-	conn := storage.SqlInterface.New()
+	conn, err := storage.Sql.Open()
 
 	deleteByIdQuery := fmt.Sprintf("DELETE FROM public.comments WHERE commentid = %d", c.CommentId)
-	_, err := conn.Query(context.Background(), deleteByIdQuery)
+	_, err = conn.Query(deleteByIdQuery)
 
 	if err != nil {
-		storage.SqlInterface.Close(conn)
+		conn.Close()
 		return err
 	}
 
-	storage.SqlInterface.Close(conn)
+	conn.Close()
 	return nil
 }

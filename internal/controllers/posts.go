@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"github.com/Troom-Corp/troom/internal/services"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
@@ -31,7 +30,6 @@ func (p PostsControllers) AllPost(c *fiber.Ctx) error {
 	p.PostServices = services.Post{}
 	post, err := p.PostServices.ReadAll()
 	if err != nil {
-		fmt.Println(err)
 		return fiber.NewError(500, "Неизвестная ошибка")
 	}
 	return c.JSON(post)

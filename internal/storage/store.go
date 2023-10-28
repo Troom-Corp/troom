@@ -1,28 +1,25 @@
 package storage
 
 import (
-	"context"
-	"github.com/jackc/pgx/v5"
+	_ "github.com/jackc/pgx/stdlib"
+	"github.com/jmoiron/sqlx"
 )
 
-type Storage interface {
-	New() *pgx.Conn
-	Close(conn *pgx.Conn)
+var Sql Storage
+
+type Storage struct {
+	DB *sqlx.DB
 }
 
-type DataBase struct {
-}
-
-func (d DataBase) New() *pgx.Conn {
-	conn, err := pgx.Connect(context.Background(), "postgres://postgres:123@localhost:5432/linkedin")
+func (s Storage) Open() (*sqlx.DB, error) {
+	database, err := sqlx.Open("pgx", "postgres://postgres:123@localhost:5432/linkedin")
 	if err != nil {
-		panic(err)
+		return s.DB, err
 	}
-	return conn
+	s.DB = database
+	return s.DB, nil
 }
 
-func (d DataBase) Close(conn *pgx.Conn) {
-	conn.Close(context.Background())
+func (s Storage) Close() error {
+	return s.DB.Close()
 }
-
-var SqlInterface Storage = DataBase{}
