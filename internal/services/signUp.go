@@ -12,12 +12,18 @@ type SignUpInterface interface {
 	ValidData() error
 }
 
+// первичная регистрация
 type SignUpCredentials struct {
-	FirstName  string
-	SecondName string
-	Nick       string
-	Email      string
-	Password   string
+	FirstName   string
+	SecondName  string
+	Nick        string
+	Email       string
+	Password    string
+	Gender      string
+	Age         int
+	DateOfBirth string
+	Location    string
+	Job         string
 }
 
 func PasswordValidator(password string) bool {

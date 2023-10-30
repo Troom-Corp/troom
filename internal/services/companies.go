@@ -83,12 +83,10 @@ func (c Company) SearchByQuery(searchQuery string) ([]Company, error) {
 	var companies []Company
 	conn, err := storage.Sql.Open()
 
-
 	searchFormat := "%" + searchQuery + "%"
 	searchByQuery := fmt.Sprintf("SELECT * FROM public.companies WHERE LOWER(companyname) LIKE LOWER('%s')", searchFormat)
 
 	err = conn.Select(&companies, searchByQuery)
-
 
 	if err != nil {
 		conn.Close()

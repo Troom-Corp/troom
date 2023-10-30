@@ -10,7 +10,7 @@ type UserControllers struct {
 	UserServices services.UserInterface
 }
 
-func (u UserControllers) UserNick(c *fiber.Ctx) error {
+func (u UserControllers) GetUserByNick(c *fiber.Ctx) error {
 	userNick := c.Params("nick")
 
 	u.UserServices = services.User{Nick: userNick}
@@ -29,12 +29,12 @@ func (u UserControllers) PatchUser(c *fiber.Ctx) error {
 	u.UserServices = user
 	err := u.UserServices.Update()
 	if err != nil {
-		return fiber.NewError(500, "Ошибка при обновлении данных")
+		return err
 	}
-	return fiber.NewError(200, "Данные успешно обновлены")
+	return fiber.NewError(200, "Пользователь успешно изменен")
 }
 
-func (u UserControllers) AllUsers(c *fiber.Ctx) error {
+func (u UserControllers) GetAllUsers(c *fiber.Ctx) error {
 	// получаем все queries
 	searchQuery := c.Query("search_query")
 
@@ -42,7 +42,7 @@ func (u UserControllers) AllUsers(c *fiber.Ctx) error {
 		u.UserServices = services.User{}
 		resultUsers, err := u.UserServices.SearchByQuery(searchQuery)
 		if err != nil {
-			return fiber.NewError(500, "Ошибка при поиске пользователей")
+			return fiber.NewError(500, "Ошибочка")
 		}
 		return c.JSON(resultUsers)
 	}
@@ -50,10 +50,9 @@ func (u UserControllers) AllUsers(c *fiber.Ctx) error {
 	u.UserServices = services.User{}
 	allUsers, err := u.UserServices.ReadAll()
 	if err != nil {
-		return fiber.NewError(404, "Ошибка при получении пользователей")
+		return fiber.NewError(404, "Ошибочка")
 	}
 	return c.JSON(allUsers)
-
 }
 
 func (u UserControllers) DeleteUser(c *fiber.Ctx) error {
@@ -62,7 +61,7 @@ func (u UserControllers) DeleteUser(c *fiber.Ctx) error {
 
 	err := u.UserServices.Delete()
 	if err != nil {
-		return fiber.NewError(500, "Ошибка при удалении пользователя")
+		return err
 	}
 	return fiber.NewError(200, "Пользователь успешно удален")
 }

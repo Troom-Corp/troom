@@ -12,23 +12,22 @@ type SignInInterface interface {
 }
 
 type SignInCredentials struct {
-	Email    string
+	Login    string // email or nick
 	Password string
 }
 
 func (s SignInCredentials) ValidData() (int, error) {
 	var userId int
 	var userPassword string
-	conn, err := storage.Sql.Open()
 
+	conn, err := storage.Sql.Open()
 	if err != nil {
 		return userId, err
 	}
 
-	getUserQuery := fmt.Sprintf("SELECT userid, password FROM public.users WHERE email='%s'", s.Email)
+	getUserQuery := fmt.Sprintf("SELECT userid, password FROM public.users WHERE email='%s' OR nick='%s'", s.Login, s.Login)
 
 	rows, err := conn.Query(getUserQuery)
-
 	for rows.Next() {
 		rows.Scan(&userId, &userPassword)
 	}
