@@ -16,12 +16,14 @@ type AuthControllers struct {
 func (a AuthControllers) SignIn(c *fiber.Ctx) error {
 	var credentials services.SignInCredentials
 	err := c.BodyParser(&credentials)
+
 	if err != nil {
 		return fiber.NewError(500, "Неизвестная ошибка")
 	}
-	a.SignInService = credentials
 
+	a.SignInService = credentials
 	userId, err := a.SignInService.ValidData()
+
 	if err != nil {
 		return err
 	}
@@ -40,20 +42,34 @@ func (a AuthControllers) SignIn(c *fiber.Ctx) error {
 func (a AuthControllers) SignUp(c *fiber.Ctx) error {
 	var credentials services.SignUpCredentials
 	err := c.BodyParser(&credentials)
+
 	if err != nil {
+
 		return fiber.NewError(500, "Ошибка при создании пользователя")
 	}
-	a.SignUpService = credentials
 
 	hashedPassword, err := pkg.Encode([]byte(credentials.Password))
 	if err != nil {
 		return fiber.NewError(500, "Ошибка при создании пользователя")
 	}
-	newUser := services.User{Nick: credentials.Nick, FirstName: credentials.FirstName, SecondName: credentials.SecondName, Email: credentials.Email, Password: string(hashedPassword)}
 
+	a.SignUpService = credentials
 	err = a.SignUpService.ValidData()
 	if err != nil {
 		return err
+	}
+
+	newUser := services.User{
+		Nick:        credentials.Nick,
+		FirstName:   credentials.FirstName,
+		SecondName:  credentials.SecondName,
+		Email:       credentials.Email,
+		Password:    string(hashedPassword),
+		Gender:      credentials.Gender,
+		Age:         credentials.Age,
+		DateOfBirth: credentials.DateOfBirth,
+		Location:    credentials.Location,
+		Job:         credentials.Job,
 	}
 
 	userId, err := newUser.Create()

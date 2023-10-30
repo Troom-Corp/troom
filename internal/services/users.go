@@ -16,22 +16,28 @@ type UserInterface interface {
 }
 
 type User struct {
-	UserId      int    `db:"userid"`
-	Password    string `db:"password"`
-	Role        string `db:"role"`
-	Nick        string `db:"nick"`
-	FirstName   string `db:"firstname"`
-	SecondName  string `db:"secondname"`
+	UserId int    `db:"userid"`
+	Role   string `db:"role"`
+
+	// первый этап регистрации
+	FirstName  string `db:"firstname"`
+	SecondName string `db:"secondname"`
+	Nick       string `db:"nick"`
+	Email      string `db:"email" `
+	Password   string `db:"password"`
+
+	// второй этап регистрации
 	Gender      string `db:"gender"`
 	Age         int    `db:"age"`
 	DateOfBirth string `db:"dateofbirth"`
 	Location    string `db:"location"`
-	Phone       string `db:"phone"`
-	Email       string `db:"email" `
-	Links       string `db:"links"`
 	Job         string `db:"job"`
-	Avatar      string `db:"avatar"`
-	Bio         string `db:"bio"`
+
+	// настраивается в профиле
+	Phone  string `db:"phone"`  // in profile
+	Links  string `db:"links"`  // in profile
+	Avatar string `db:"avatar"` // in profile
+	Bio    string `db:"bio"`    // in profile
 }
 
 // Create Создать пользователя по входным данным и получить ID этого пользователя
@@ -44,11 +50,13 @@ func (u User) Create() (int, error) {
 	}
 
 	createQuery := fmt.Sprintf("INSERT INTO "+
-		"public.users (password, role, firstname, secondname, gender, age, dateofbirth, location, phone, email, links, job, avatar, bio, nick) "+
-		"VALUES ('%s', 'user', '%s', '%s', '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') RETURNING userid",
-		u.Password, u.FirstName, u.SecondName, u.Gender, u.Age, u.DateOfBirth, u.Location, u.Phone, u.Email, u.Links, u.Job, u.Avatar, u.Bio, u.Nick)
+		"public.users (role, firstname, secondname, nick, email, password, gender, age, dateofbirth, location, job, phone, links, avatar, bio) "+
+		"VALUES ('user', '%s', '%s', '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s') RETURNING userid",
+		u.FirstName, u.SecondName, u.Nick, u.Email, u.Password, u.Gender, u.Age, u.DateOfBirth, u.Location, u.Job, u.Phone, u.Links, u.Avatar, u.Bio)
+
 	err = conn.Get(&userId, createQuery)
 	if err != nil {
+		fmt.Println(err)
 		return 0, fiber.NewError(500, "Ошибка при создании пользователя")
 	}
 
@@ -66,10 +74,9 @@ func (u User) ReadAll() ([]User, error) {
 	}
 
 	err = conn.Select(&users, "SELECT * FROM public.users")
-
 	if err != nil {
 		conn.Close()
-		return []User{}, fiber.NewError(500, "Ошибка при получении пользователей")
+		return []User{}, fiber.NewError(500, "Неизвестная ошибка")
 	}
 
 	conn.Close()
@@ -86,8 +93,8 @@ func (u User) ReadByNick() (User, error) {
 	}
 
 	readByIdQuery := fmt.Sprintf("SELECT * FROM public.users WHERE nick='%s'", u.Nick)
-	err = conn.Get(&user, readByIdQuery)
 
+	err = conn.Get(&user, readByIdQuery)
 	if err != nil {
 		conn.Close()
 		return User{}, fiber.NewError(404, "Пользователь не найден")
@@ -100,13 +107,12 @@ func (u User) ReadByNick() (User, error) {
 // SearchByQuery Найти пользователей по searchQuery
 func (u User) SearchByQuery(searchQuery string) ([]User, error) {
 	var queryUsers []User
-
 	conn, err := storage.Sql.Open()
 
 	searchFormat := "%" + searchQuery + "%"
 	searchByQuery := fmt.Sprintf("SELECT * FROM users WHERE LOWER(firstname) LIKE LOWER('%s') OR LOWER(secondname) LIKE LOWER('%s')", searchFormat, searchFormat)
-	err = conn.Select(&queryUsers, searchByQuery)
 
+	err = conn.Select(&queryUsers, searchByQuery)
 	if err != nil {
 		conn.Close()
 		return []User{}, fiber.NewError(500, "Ошибка при поиске пользователей")
@@ -118,6 +124,9 @@ func (u User) SearchByQuery(searchQuery string) ([]User, error) {
 
 // Update Обновить данные пользователя по ID
 func (u User) Update() error {
+	var userId int
+	var userEmail, userNick, userPhone string
+
 	conn, err := storage.Sql.Open()
 	if err != nil {
 		return fiber.NewError(500, "Ошибка при подключении к базе данных")
@@ -125,35 +134,57 @@ func (u User) Update() error {
 
 	updateByIdQuery := fmt.Sprintf("UPDATE public.users SET "+
 		"firstname = '%s', secondname = '%s', email = '%s', avatar = '%s', bio = '%s', "+
-		"phone = '%s', links = '%s' WHERE userid = %d",
-		u.FirstName, u.SecondName, u.Email, u.Avatar, u.Bio, u.Phone, u.Links, u.UserId)
-	_, err = conn.Query(updateByIdQuery)
+		"phone = '%s', links = '%s', nick = '%s' WHERE userid = %d IF email NOT ",
+		u.FirstName, u.SecondName, u.Email, u.Avatar, u.Bio, u.Phone, u.Links, u.Nick, u.UserId)
+	duplicateEmailAndNick := fmt.Sprintf("SELECT email, nick, phone FROM public.users WHERE NOT userid = %d AND (email = '%s' OR nick = '%s' OR phone = '%s')", u.UserId, u.Email, u.Phone, u.Nick)
+	duplicateId := fmt.Sprintf("SELECT userid FROM public.users WHERE userid = %d", u.UserId)
 
-	if err != nil {
+	conn.Get(&userId, duplicateId)
+	if userId == 0 {
 		conn.Close()
-		return fiber.NewError(500, "Ошибка при обновлении профиля")
+		return fiber.NewError(404, "Такого пользователя не сущесвует")
 	}
 
+	rows, _ := conn.Queryx(duplicateEmailAndNick)
+	for rows.Next() {
+		rows.Scan(&userEmail, &userNick, &userPhone)
+	}
+	if userEmail == u.Email {
+		conn.Close()
+		return fiber.NewError(409, "Такая почта уже существует")
+	}
+	if userNick == u.Nick {
+		conn.Close()
+		return fiber.NewError(409, "Такой ник уже существует")
+	}
+	if userPhone == u.Phone {
+		conn.Close()
+		return fiber.NewError(409, "Такой номер телефона уже существует")
+	}
+
+	_, err = conn.Query(updateByIdQuery)
 	conn.Close()
-	return nil
+	return err
 }
 
 // Delete Удалить все данные пользователя по ID
 func (u User) Delete() error {
-	conn, err := storage.Sql.Open()
+	var userId int
 
+	conn, err := storage.Sql.Open()
 	if err != nil {
+		conn.Close()
 		return fiber.NewError(500, "Ошибка при подключении к базе данных")
 	}
 
-	deleteByIdQuery := fmt.Sprintf("DELETE FROM public.users WHERE userid = %d", u.UserId)
-	_, err = conn.Query(deleteByIdQuery)
+	deleteByIdQuery := fmt.Sprintf("DELETE FROM public.users WHERE userid = %d RETURNING userid", u.UserId)
 
-	if err != nil {
+	err = conn.Get(&userId, deleteByIdQuery)
+	if userId == 0 {
 		conn.Close()
-		return fiber.NewError(500, "Ошибка при удалении профиля")
+		return fiber.NewError(409, "Пользователя не сущесвует")
 	}
 
 	conn.Close()
-	return nil
+	return err
 }

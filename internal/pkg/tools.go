@@ -1,6 +1,8 @@
 package pkg
 
-import "strconv"
+import (
+	"strconv"
+)
 
 func ConvertStringToArray(data string) []int {
 	var result []int
