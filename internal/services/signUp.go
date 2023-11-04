@@ -5,7 +5,6 @@ import (
 	"github.com/Troom-Corp/troom/internal/storage"
 	"github.com/gofiber/fiber/v2"
 	"regexp"
-	"unicode"
 )
 
 type SignUpInterface interface {
@@ -27,17 +26,10 @@ type SignUpCredentials struct {
 }
 
 func PasswordValidator(password string) bool {
-	var containNums bool = false
-
-	for k := range password {
-		if unicode.IsDigit(rune(password[k])) {
-			containNums = true
-			break
-		}
-	}
 
 	containUpper, _ := regexp.Match(`[A-Z]`, []byte(password))
 	containSymbols, _ := regexp.Match(`[!@#$%^&*_-]`, []byte(password))
+	containNums, _ := regexp.Match(`[0123456789]`, []byte(password))
 
 	if (len(password) > 8 && len(password) < 20) && containNums && containUpper && containSymbols {
 		return true

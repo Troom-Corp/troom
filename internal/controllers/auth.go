@@ -66,7 +66,6 @@ func (a AuthControllers) SignUp(c *fiber.Ctx) error {
 		Email:       credentials.Email,
 		Password:    string(hashedPassword),
 		Gender:      credentials.Gender,
-		Age:         credentials.Age,
 		DateOfBirth: credentials.DateOfBirth,
 		Location:    credentials.Location,
 		Job:         credentials.Job,
