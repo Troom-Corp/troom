@@ -111,3 +111,13 @@ func (a AuthControllers) RefreshToken(c *fiber.Ctx) error {
 	newAccessToken, _ := pkg.CreateAccessToken(refreshUserId)
 	return c.JSON(newAccessToken)
 }
+
+func (a AuthControllers) ValidPassword(c *fiber.Ctx) error {
+	payload := struct {
+		Password string
+	}{}
+	c.BodyParser(&payload)
+
+	a.SignUpService = services.SignUpCredentials{Password: payload.Password}
+	return a.SignUpService.ValidPassword()
+}

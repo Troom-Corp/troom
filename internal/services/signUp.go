@@ -9,6 +9,7 @@ import (
 
 type SignUpInterface interface {
 	ValidData() error
+	ValidPassword() error
 }
 
 // первичная регистрация
@@ -19,23 +20,21 @@ type SignUpCredentials struct {
 	Email       string
 	Password    string
 	Gender      string
-	Age         int
 	DateOfBirth string
 	Location    string
 	Job         string
 }
 
-func PasswordValidator(password string) bool {
 
-	containUpper, _ := regexp.Match(`[A-Z]`, []byte(password))
-	containSymbols, _ := regexp.Match(`[!@#$%^&*_-]`, []byte(password))
-	containNums, _ := regexp.Match(`[0123456789]`, []byte(password))
-
-	if (len(password) > 8 && len(password) < 20) && containNums && containUpper && containSymbols {
-		return true
+func (s SignUpCredentials) ValidPassword() error {
+	containNums, _ := regexp.Match(`[0123456789]`, []byte(s.Password))
+	containUpper, _ := regexp.Match(`[A-Z]`, []byte(s.Password))
+	containSymbols, _ := regexp.Match(`[!@#$%^&*_-]`, []byte(s.Password))
+	if (len(s.Password) > 8 && len(s.Password) < 20) && containNums && containUpper && containSymbols {
+		return fiber.NewError(200, "Пароль соотвествует требованиям")
 	}
 
-	return false
+	return fiber.NewError(409, "Пароль не соотвествует требованиям")
 }
 
 func (s SignUpCredentials) ValidData() error {
@@ -65,11 +64,6 @@ func (s SignUpCredentials) ValidData() error {
 
 	if len(userNick) > 20 {
 		return fiber.NewError(409, "Nick должен соотвествовать требованиям")
-	}
-
-	if !PasswordValidator(s.Password) {
-		conn.Close()
-		return fiber.NewError(409, "Пароль должен соотвествовать требованиям")
 	}
 
 	conn.Close()
