@@ -23,16 +23,16 @@ func (u UserControllers) GetUserByNick(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
-func (u UserControllers) PatchUser(c *fiber.Ctx) error {
-	var user services.User
-	c.BodyParser(&user)
-	u.UserServices = user
-	err := u.UserServices.Update()
-	if err != nil {
-		return err
-	}
-	return fiber.NewError(200, "Пользователь успешно изменен")
-}
+//func (u UserControllers) PatchUser(c *fiber.Ctx) error {
+//	var user services.User
+//	c.BodyParser(&user)
+//	u.UserServices = user
+//	err := u.UserServices.Update()
+//	if err != nil {
+//		return err
+//	}
+//	return fiber.NewError(200, "Пользователь успешно изменен")
+//}
 
 func (u UserControllers) GetAllUsers(c *fiber.Ctx) error {
 	// получаем все queries

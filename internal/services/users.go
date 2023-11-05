@@ -11,8 +11,17 @@ type UserInterface interface {
 	ReadAll() ([]User, error)
 	ReadByNick() (User, error)
 	SearchByQuery(string) ([]User, error)
-	Update() error
 	Delete() error
+}
+
+type ProfileInterface interface {
+	UpdateInfo() error // FirstName, SecondName, Gender, DateOfBirth, Location, Job, Links, Avatar, Bio
+
+	// need to check for duplicates
+	ResetPassword() error
+	UpdatePhone() error
+	UpdateEmail() error
+	UpdateNick() error
 }
 
 type User struct {
@@ -117,53 +126,8 @@ func (u User) SearchByQuery(searchQuery string) ([]User, error) {
 		return []User{}, fiber.NewError(500, "Ошибка при поиске пользователей")
 	}
 
-	conn.Close()
-	return queryUsers, nil
-}
-
-// Update Обновить данные пользователя по ID
-func (u User) Update() error {
-	var userId int
-	var userEmail, userNick, userPhone string
-
-	conn, err := storage.Sql.Open()
-	if err != nil {
-		return fiber.NewError(500, "Ошибка при подключении к базе данных")
-	}
-
-	updateByIdQuery := fmt.Sprintf("UPDATE public.users SET "+
-		"firstname = '%s', secondname = '%s', email = '%s', avatar = '%s', bio = '%s', "+
-		"phone = '%s', links = '%s', nick = '%s' WHERE userid = %d IF email NOT ",
-		u.FirstName, u.SecondName, u.Email, u.Avatar, u.Bio, u.Phone, u.Links, u.Nick, u.UserId)
-	duplicateEmailAndNick := fmt.Sprintf("SELECT email, nick, phone FROM public.users WHERE NOT userid = %d AND (email = '%s' OR nick = '%s' OR phone = '%s')", u.UserId, u.Email, u.Phone, u.Nick)
-	duplicateId := fmt.Sprintf("SELECT userid FROM public.users WHERE userid = %d", u.UserId)
-
-	conn.Get(&userId, duplicateId)
-	if userId == 0 {
-		conn.Close()
-		return fiber.NewError(404, "Такого пользователя не сущесвует")
-	}
-
-	rows, _ := conn.Queryx(duplicateEmailAndNick)
-	for rows.Next() {
-		rows.Scan(&userEmail, &userNick, &userPhone)
-	}
-	if userEmail == u.Email {
-		conn.Close()
-		return fiber.NewError(409, "Такая почта уже существует")
-	}
-	if userNick == u.Nick {
-		conn.Close()
-		return fiber.NewError(409, "Такой ник уже существует")
-	}
-	if userPhone == u.Phone {
-		conn.Close()
-		return fiber.NewError(409, "Такой номер телефона уже существует")
-	}
-
-	_, err = conn.Query(updateByIdQuery)
-	conn.Close()
-	return err
+	err = conn.Close()
+	return queryUsers, err
 }
 
 // Delete Удалить все данные пользователя по ID
@@ -178,12 +142,90 @@ func (u User) Delete() error {
 
 	deleteByIdQuery := fmt.Sprintf("DELETE FROM public.users WHERE userid = %d RETURNING userid", u.UserId)
 
-	err = conn.Get(&userId, deleteByIdQuery)
+	conn.Get(&userId, deleteByIdQuery)
 	if userId == 0 {
 		conn.Close()
 		return fiber.NewError(409, "Пользователя не сущесвует")
 	}
 
-	conn.Close()
+	err = conn.Close()
 	return err
+}
+
+// UpdateInfo Обновляет данные профиля пользователя
+func (u User) UpdateInfo() error {
+	var userId int
+
+	conn, err := storage.Sql.Open()
+	if err != nil {
+		conn.Close()
+		return fiber.NewError(500, "Ошибка при подключении к базе данных")
+	}
+
+	updateInfoQuery := fmt.Sprintf("UPDATE SET "+
+		"firstname = '%s', secondname = '%s', gender = '%s', dateofbirth = '%s', location = '%s', job = '%s', links = '%s', avatar = '%s', bio = '%s' WHERE userid = %d RETURNING userid",
+		u.FirstName, u.SecondName, u.Gender, u.DateOfBirth, u.Location, u.Job, u.Links, u.Avatar, u.Bio, u.UserId)
+	conn.Get(&userId, updateInfoQuery)
+	if userId == 0 {
+		conn.Close()
+		return fiber.NewError(409, "Пользователя не сущесвует")
+	}
+	err = conn.Close()
+	return err
+}
+
+func (u User) ResetPassword() error {
+	return nil
+}
+
+func (u User) UpdatePhone() error {
+	return nil
+}
+
+func (u User) UpdateEmail() error {
+	var userEmail string
+
+	conn, err := storage.Sql.Open()
+	if err != nil {
+		conn.Close()
+		return fiber.NewError(500, "Ошибка при подключении к базе данных")
+	}
+
+	getEmailQuery := fmt.Sprintf("SELECT email FROM public.users WHERE email = '%s' RETURNING email", u.Email)
+	updateEmailQuery := fmt.Sprintf("UPDATE SET email = '%s'", u.Email)
+	conn.Get(&userEmail, getEmailQuery)
+
+	if userEmail != "" {
+		conn.Close()
+		return fiber.NewError(409, "Такая почта уже используется")
+	}
+
+	// здесь должна быть логика брокера сообщений
+
+	conn.Query(updateEmailQuery)
+	conn.Close()
+	return nil
+}
+
+func (u User) UpdateNick() error {
+	var userNick string
+
+	conn, err := storage.Sql.Open()
+	if err != nil {
+		conn.Close()
+		return fiber.NewError(500, "Ошибка при подключении к базе данных")
+	}
+
+	getNickQuery := fmt.Sprintf("SELECT nick FROM public.users WHERE nick = '%s' RETURNING nick", u.Nick)
+	updateNickQuery := fmt.Sprintf("UPDATE SET nick = '%s'", u.Nick)
+	conn.Get(&userNick, getNickQuery)
+
+	if userNick != "" {
+		conn.Close()
+		return fiber.NewError(409, "Такой nick уже используется")
+	}
+
+	conn.Query(updateNickQuery)
+	conn.Close()
+	return nil
 }

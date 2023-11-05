@@ -19,7 +19,7 @@ func Start() {
 
 	// CORS configuration
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:5432",
+		AllowOrigins:     "http://localhost:3000",
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
 		AllowCredentials: true,
 	}))
@@ -29,7 +29,7 @@ func Start() {
 	users.Get("/", userControllers.GetAllUsers)
 	users.Get("/@:nick", userControllers.GetUserByNick)
 	users.Delete("/", userControllers.DeleteUser)
-	users.Patch("/", userControllers.PatchUser)
+	//users.Patch("/", userControllers.PatchUser)
 
 	// posts group
 	posts := api.Group("/posts")

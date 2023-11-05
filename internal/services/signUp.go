@@ -25,6 +25,7 @@ type SignUpCredentials struct {
 	Job         string
 }
 
+
 func (s SignUpCredentials) ValidPassword() error {
 	containNums, _ := regexp.Match(`[0123456789]`, []byte(s.Password))
 	containUpper, _ := regexp.Match(`[A-Z]`, []byte(s.Password))
