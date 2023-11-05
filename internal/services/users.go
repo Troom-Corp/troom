@@ -49,8 +49,8 @@ func (u User) Create() (int, error) {
 	}
 
 	createQuery := fmt.Sprintf("INSERT INTO "+
-		"public.users (role, firstname, secondname, nick, email, password, gender, age, dateofbirth, location, job, phone, links, avatar, bio) "+
-		"VALUES ('user', '%s', '%s', '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s') RETURNING userid",
+		"public.users (role, firstname, secondname, nick, email, password, gender, dateofbirth, location, job, phone, links, avatar, bio) "+
+		"VALUES ('user', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') RETURNING userid",
 		u.FirstName, u.SecondName, u.Nick, u.Email, u.Password, u.Gender, u.DateOfBirth, u.Location, u.Job, u.Phone, u.Links, u.Avatar, u.Bio)
 
 	err = conn.Get(&userId, createQuery)
