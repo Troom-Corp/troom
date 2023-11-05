@@ -11,7 +11,6 @@ import (
 
 type SignUpInterface interface {
 	ValidPassword() error
-	EmailNotInBase() error
 	ValidEmail() error
 	ValidNick() error
 }
@@ -44,29 +43,6 @@ func (s SignUpCredentials) ValidPassword() error {
 	}
 
 	return fiber.NewError(409, "Пароль не соотвествует требованиям")
-}
-
-func (s SignUpCredentials) EmailNotInBase() error {
-	var userEmail string
-	conn, err := storage.Sql.Open()
-	if err != nil {
-		return fiber.NewError(500, "Ошибка при подключении к базе")
-	}
-
-	getUserQuery := fmt.Sprintf("SELECT email FROM public.users WHERE email='%s'", s.Email)
-	rows, err := conn.Query(getUserQuery)
-
-	for rows.Next() {
-		err = rows.Scan(&userEmail)
-	}
-
-	if userEmail == s.Email {
-		conn.Close()
-		return fiber.NewError(409, "Пользователь с таким email уже существует")
-	}
-
-	conn.Close()
-	return nil
 }
 
 func (s SignUpCredentials) ValidEmail() error {
