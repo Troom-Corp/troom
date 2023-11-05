@@ -1,11 +1,12 @@
 package controllers
 
 import (
+	"strings"
+	"time"
+
 	"github.com/Troom-Corp/troom/internal/pkg"
 	"github.com/Troom-Corp/troom/internal/services"
 	"github.com/gofiber/fiber/v2"
-	"strings"
-	"time"
 )
 
 type AuthControllers struct {
@@ -44,7 +45,6 @@ func (a AuthControllers) SignUp(c *fiber.Ctx) error {
 	err := c.BodyParser(&credentials)
 
 	if err != nil {
-
 		return fiber.NewError(500, "Ошибка при создании пользователя")
 	}
 
@@ -54,11 +54,6 @@ func (a AuthControllers) SignUp(c *fiber.Ctx) error {
 	}
 
 	a.SignUpService = credentials
-	err = a.SignUpService.ValidData()
-	if err != nil {
-		return err
-	}
-
 	newUser := services.User{
 		Nick:        credentials.Nick,
 		FirstName:   credentials.FirstName,
@@ -120,4 +115,24 @@ func (a AuthControllers) ValidPassword(c *fiber.Ctx) error {
 
 	a.SignUpService = services.SignUpCredentials{Password: payload.Password}
 	return a.SignUpService.ValidPassword()
+}
+
+func (a AuthControllers) ValidEmail(c *fiber.Ctx) error {
+	payload := struct {
+		Email string
+	}{}
+	c.BodyParser(&payload)
+
+	a.SignUpService = services.SignUpCredentials{Email: payload.Email}
+	return a.SignUpService.ValidEmail()
+}
+
+func (a AuthControllers) ValidNick(c *fiber.Ctx) error {
+	payload := struct {
+		Nick string
+	}{}
+	c.BodyParser(&payload)
+
+	a.SignUpService = services.SignUpCredentials{Nick: payload.Nick}
+	return a.SignUpService.ValidNick()
 }

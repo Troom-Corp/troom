@@ -51,6 +51,8 @@ func Start() {
 	auth.Post("/sign_up", authControllers.SignUp)
 	auth.Post("/refresh_token", authControllers.RefreshToken)
 	auth.Post("/check_password", authControllers.ValidPassword)
+	auth.Post("/check_email", authControllers.ValidEmail)
+	auth.Post("/check_nick", authControllers.ValidNick)
 
 	// companies group
 	company := api.Group("/companies")
