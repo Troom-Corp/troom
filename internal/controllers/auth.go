@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"github.com/Troom-Corp/troom/internal/pkg"
 	"github.com/Troom-Corp/troom/internal/services"
 	"github.com/gofiber/fiber/v2"
@@ -32,8 +33,9 @@ func (a AuthControllers) SignIn(c *fiber.Ctx) error {
 	refreshToken, _ := pkg.CreateRefreshToken(userId)
 
 	c.Cookie(&fiber.Cookie{
-		Name:  "refresh_token",
-		Value: refreshToken,
+		Name:    "refresh_token",
+		Value:   refreshToken,
+		Expires: time.Now().Add(time.Minute),
 	})
 
 	return c.JSON(accessToken)
@@ -44,8 +46,14 @@ func (a AuthControllers) SignUp(c *fiber.Ctx) error {
 	err := c.BodyParser(&credentials)
 
 	if err != nil {
-
 		return fiber.NewError(500, "Ошибка при создании пользователя")
+	}
+	a.SignUpService = credentials
+	isUserValid := a.SignUpService.ValidData()
+
+	if isUserValid.Nick != "" || isUserValid.Email != "" || isUserValid.Password != "" {
+		isUserValidString, _ := json.Marshal(isUserValid)
+		return fiber.NewError(409, string(isUserValidString))
 	}
 
 	hashedPassword, err := pkg.Encode([]byte(credentials.Password))
@@ -53,14 +61,8 @@ func (a AuthControllers) SignUp(c *fiber.Ctx) error {
 		return fiber.NewError(500, "Ошибка при создании пользователя")
 	}
 
-	a.SignUpService = credentials
-	err = a.SignUpService.ValidData()
-	if err != nil {
-		return err
-	}
-
 	newUser := services.User{
-		Nick:        credentials.Nick,
+		Login:       credentials.Login,
 		FirstName:   credentials.FirstName,
 		SecondName:  credentials.SecondName,
 		Email:       credentials.Email,
@@ -112,12 +114,11 @@ func (a AuthControllers) RefreshToken(c *fiber.Ctx) error {
 	return c.JSON(newAccessToken)
 }
 
-func (a AuthControllers) ValidPassword(c *fiber.Ctx) error {
-	payload := struct {
-		Password string
-	}{}
-	c.BodyParser(&payload)
-
-	a.SignUpService = services.SignUpCredentials{Password: payload.Password}
-	return a.SignUpService.ValidPassword()
+func (a AuthControllers) Logout(c *fiber.Ctx) error {
+	c.Cookie(&fiber.Cookie{
+		Name:  "refresh_token",
+		Value: "",
+		Path:  "/",
+	})
+	return fiber.NewError(200, "Вы успешно вышли из аккаунта")
 }

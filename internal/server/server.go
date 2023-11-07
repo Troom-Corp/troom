@@ -2,6 +2,7 @@ package server
 
 import (
 	"github.com/Troom-Corp/troom/internal/controllers"
+	"github.com/Troom-Corp/troom/internal/middleware"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
@@ -24,12 +25,15 @@ func Start() {
 		AllowCredentials: true,
 	}))
 
+	api.Get("/profile", middleware.Middleware, userControllers.Profile)
+
 	// users group
 	users := api.Group("/users")
-	users.Get("/", userControllers.GetAllUsers)
+	users.Get("/", userControllers.SearchUsersByQuery)
 	users.Get("/@:nick", userControllers.GetUserByNick)
 	users.Delete("/", userControllers.DeleteUser)
-	//users.Patch("/", userControllers.PatchUser)
+	users.Patch("/", middleware.Middleware, userControllers.UpdateInfo)
+	users.Patch("/update_login", middleware.Middleware, userControllers.UpdateLogin)
 
 	// posts group
 	posts := api.Group("/posts")
@@ -49,8 +53,8 @@ func Start() {
 	auth := api.Group("/auth")
 	auth.Post("/sign_in", authControllers.SignIn)
 	auth.Post("/sign_up", authControllers.SignUp)
+	auth.Post("/logout", authControllers.Logout)
 	auth.Post("/refresh_token", authControllers.RefreshToken)
-	auth.Post("/check_password", authControllers.ValidPassword)
 
 	// companies group
 	company := api.Group("/companies")
