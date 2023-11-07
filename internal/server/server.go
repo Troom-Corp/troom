@@ -31,7 +31,7 @@ func Start() {
 	users := api.Group("/users")
 	users.Get("/", userControllers.SearchUsersByQuery)
 	users.Get("/@:nick", userControllers.GetUserByNick)
-	users.Delete("/", userControllers.DeleteUser)
+	users.Delete("/", middleware.Middleware, userControllers.DeleteUser)
 	users.Patch("/", middleware.Middleware, userControllers.UpdateInfo)
 	users.Patch("/update_login", middleware.Middleware, userControllers.UpdateLogin)
 

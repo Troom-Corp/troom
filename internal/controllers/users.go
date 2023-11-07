@@ -4,7 +4,6 @@ import (
 	"github.com/Troom-Corp/troom/internal/pkg"
 	"github.com/Troom-Corp/troom/internal/services"
 	"github.com/gofiber/fiber/v2"
-	"strconv"
 	"strings"
 )
 
@@ -48,10 +47,15 @@ func (u UserControllers) SearchUsersByQuery(c *fiber.Ctx) error {
 }
 
 func (u UserControllers) DeleteUser(c *fiber.Ctx) error {
-	userId, _ := strconv.Atoi(c.Query("user_id"))
+	authHeader := c.Get("authorization")
+	authToken := strings.SplitN(authHeader, " ", 2)[1]
+	userId, _, err := pkg.GetIdentity(authToken)
+	if err != nil {
+		return fiber.NewError(500, "Ошибка при открытии профиля")
+	}
 	u.UserServices = services.User{UserId: userId}
 
-	err := u.UserServices.Delete()
+	err = u.UserServices.Delete()
 	if err != nil {
 		return err
 	}
