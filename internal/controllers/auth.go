@@ -46,7 +46,7 @@ func (a AuthControllers) SignUp(c *fiber.Ctx) error {
 	err := c.BodyParser(&credentials)
 
 	if err != nil {
-		return fiber.NewError(500, "Ошибка при создании пользователя")
+		return fiber.NewError(500, "Ошибка при чтении JSON")
 	}
 	a.SignUpService = credentials
 	isUserValid := a.SignUpService.ValidData()
@@ -58,7 +58,7 @@ func (a AuthControllers) SignUp(c *fiber.Ctx) error {
 
 	hashedPassword, err := pkg.Encode([]byte(credentials.Password))
 	if err != nil {
-		return fiber.NewError(500, "Ошибка при создании пользователя")
+		return fiber.NewError(500, "Ошибка при хешировании пароля")
 	}
 
 	newUser := services.User{
@@ -76,7 +76,7 @@ func (a AuthControllers) SignUp(c *fiber.Ctx) error {
 	userId, err := newUser.Create()
 
 	if err != nil {
-		return fiber.NewError(500, "Ошибка при создании пользователя")
+		return err
 	}
 
 	accessToken, _ := pkg.CreateAccessToken(userId)
@@ -101,10 +101,7 @@ func (a AuthControllers) RefreshToken(c *fiber.Ctx) error {
 		return fiber.NewError(401, "Refresh токена нет")
 	}
 	accessUserId, _, _ := pkg.GetIdentity(headerToken)
-	refreshUserId, expTime, _ := pkg.GetIdentity(userRefreshToken)
-	if expTime < time.Now().Unix() {
-		c.ClearCookie("refresh_token")
-	}
+	refreshUserId, _, _ := pkg.GetIdentity(userRefreshToken)
 
 	if accessUserId != refreshUserId {
 		return fiber.NewError(401, "Вы пытаетесь обновить чужой токен")
