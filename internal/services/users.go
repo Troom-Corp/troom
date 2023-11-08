@@ -65,7 +65,6 @@ func (u User) Create() (int, error) {
 
 	err = conn.Get(&userId, createQuery)
 	if err != nil {
-		fmt.Println(err)
 		return 0, fiber.NewError(500, "Ошибка при создании пользователя")
 	}
 
