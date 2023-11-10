@@ -5,8 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5b6e300a-60f8-4331-9479-43a8c1408980" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/internal/broker/broker.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/controllers/profile.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/services/profile.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/storage/redis.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/storage/store.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/storage/store.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/controllers/users.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/controllers/users.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/pkg/token.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/pkg/token.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/server/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/server/server.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/services/users.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/users.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

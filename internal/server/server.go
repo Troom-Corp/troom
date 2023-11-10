@@ -13,6 +13,7 @@ var commentControllers = controllers.CommentControllers{}
 var authControllers = controllers.AuthControllers{}
 var companyControllers = controllers.CompanyControllers{}
 var vacanciesControllers = controllers.VacancyControllers{}
+var profileControllers = controllers.ProfileControllers{}
 
 func Start() {
 	app := fiber.New()
@@ -32,8 +33,10 @@ func Start() {
 	users.Get("/", userControllers.SearchUsersByQuery)
 	users.Get("/@:nick", userControllers.GetUserByNick)
 	users.Delete("/", middleware.Middleware, userControllers.DeleteUser)
-	users.Patch("/", middleware.Middleware, userControllers.UpdateInfo)
-	users.Patch("/update_login", middleware.Middleware, userControllers.UpdateLogin)
+	//users.Patch("/", middleware.Middleware, userControllers.UpdateInfo)
+	//users.Patch("/update_login", middleware.Middleware, userControllers.UpdateLogin)
+	users.Patch("/reset_password", middleware.Middleware, profileControllers.UpdatePassword)
+	users.Patch("/reset_password/check_code", middleware.Middleware, profileControllers.CheckCode)
 
 	// posts group
 	posts := api.Group("/posts")

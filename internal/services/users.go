@@ -15,16 +15,6 @@ type UserInterface interface {
 	Delete() error
 }
 
-type ProfileInterface interface {
-	UpdateInfo() error // FirstName, SecondName, Gender, DateOfBirth, Location, Job, Links, Avatar, Bio
-
-	// need to check for duplicates
-	ResetPassword() error
-	UpdatePhone() error
-	UpdateEmail() error
-	UpdateLogin() error
-}
-
 type User struct {
 	UserId int    `db:"userid" json:"-"`
 	Role   string `db:"role" json:"-"`
@@ -171,80 +161,4 @@ func (u User) Delete() error {
 
 	err = conn.Close()
 	return err
-}
-
-// UpdateInfo Обновляет данные профиля пользователя
-func (u User) UpdateInfo() error {
-	var userId int
-
-	conn, err := storage.Sql.Open()
-	if err != nil {
-		return fiber.NewError(500, "Ошибка при подключении к базе данных")
-	}
-
-	updateInfoQuery := fmt.Sprintf("UPDATE public.users SET "+
-		"firstname = '%s', secondname = '%s', gender = '%s', dateofbirth = '%s', location = '%s', job = '%s', links = '%s', avatar = '%s', bio = '%s' WHERE userid = %d RETURNING userid",
-		u.FirstName, u.SecondName, u.Gender, u.DateOfBirth, u.Location, u.Job, u.Links, u.Avatar, u.Bio, u.UserId)
-	err = conn.Get(&userId, updateInfoQuery)
-
-	if userId == 0 {
-		conn.Close()
-		return fiber.NewError(409, "Пользователя не существует")
-	}
-	err = conn.Close()
-	return err
-}
-
-func (u User) ResetPassword() error {
-	return nil
-}
-
-func (u User) UpdatePhone() error {
-	return nil
-}
-
-func (u User) UpdateEmail() error {
-	var userEmail string
-
-	conn, err := storage.Sql.Open()
-	if err != nil {
-		return fiber.NewError(500, "Ошибка при подключении к базе данных")
-	}
-
-	getEmailQuery := fmt.Sprintf("SELECT email FROM public.users WHERE email = '%s' RETURNING email", u.Email)
-	updateEmailQuery := fmt.Sprintf("UPDATE SET email = '%s'", u.Email)
-	conn.Get(&userEmail, getEmailQuery)
-
-	if userEmail != "" {
-		conn.Close()
-		return fiber.NewError(409, "Такая почта уже используется")
-	}
-
-	// здесь должна быть логика брокера сообщений
-
-	conn.Query(updateEmailQuery)
-	conn.Close()
-	return nil
-}
-
-func (u User) UpdateLogin() error {
-	var userLogin string
-
-	conn, err := storage.Sql.Open()
-	if err != nil {
-		return fiber.NewError(500, "Ошибка при подключении к базе данных")
-	}
-
-	getLoginQuery := fmt.Sprintf("SELECT nick FROM public.users WHERE nick = '%s'", u.Login)
-	updateLoginQuery := fmt.Sprintf("UPDATE public.users SET nick = '%s' WHERE userid = %d RETURNING nick", u.Login, u.UserId)
-	conn.Get(&userLogin, getLoginQuery)
-
-	if userLogin != "" {
-		conn.Close()
-		return fiber.NewError(409, "Такой nick уже используется")
-	}
-
-	conn.Query(updateLoginQuery)
-	conn.Close()
-	return nil
 }
