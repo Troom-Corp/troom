@@ -33,10 +33,9 @@ func Start() {
 	users.Get("/", userControllers.SearchUsersByQuery)
 	users.Get("/@:nick", userControllers.GetUserByNick)
 	users.Delete("/", middleware.Middleware, userControllers.DeleteUser)
-	//users.Patch("/", middleware.Middleware, userControllers.UpdateInfo)
-	//users.Patch("/update_login", middleware.Middleware, userControllers.UpdateLogin)
-	users.Patch("/reset_password", middleware.Middleware, profileControllers.UpdatePassword)
-	users.Patch("/reset_password/check_code", middleware.Middleware, profileControllers.CheckCode)
+
+	users.Patch("/reset_password/", middleware.Middleware, profileControllers.GetResetLink)
+	users.Patch("/reset_password/:uuid", middleware.Middleware, profileControllers.ResetPasswordByLink)
 
 	// posts group
 	posts := api.Group("/posts")

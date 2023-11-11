@@ -1,14 +1,12 @@
 package services
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/Troom-Corp/troom/internal/broker"
 	"github.com/Troom-Corp/troom/internal/pkg"
 	"github.com/Troom-Corp/troom/internal/storage"
 	"github.com/gofiber/fiber/v2"
-	"strconv"
 )
 
 type ProfileInterface interface {
@@ -40,12 +38,11 @@ type UserIdentification struct {
 }
 
 type NewPasswordCredentials struct {
-	OldPassword      string `json:"old_password"`
-	VerificationCode string `json:"verification_code"`
-	NewPassword      string `json:"new_password"`
+	OldPassword string `json:"old_password"`
+	NewPassword string `json:"new_password"`
 }
 
-func (np NewPasswordCredentials) ResetPassword(userid int) error {
+func (np NewPasswordCredentials) GetResetLink(userid int) error {
 	var userIdentity UserIdentification
 	userIdentity.UserId = userid
 
@@ -85,28 +82,18 @@ func (np NewPasswordCredentials) ResetPassword(userid int) error {
 	return nil
 }
 
-func (np NewPasswordCredentials) CheckCode(userid int) error {
-	rds := storage.Redis.Open()
-	verifyCode := rds.Get(context.Background(), strconv.Itoa(userid))
-
-	if np.VerificationCode != verifyCode.Val() {
-		rds.Close()
-		return fiber.NewError(409, "Неверный код")
-	}
+func (np NewPasswordCredentials) SetNewPassword(userid int) error {
 
 	conn, err := storage.Sql.Open()
 	if err != nil {
-		rds.Close()
 		return fiber.NewError(500, "Ошибка при подключении к базе данных")
 	}
 	hashedPassword, _ := pkg.Encode([]byte(np.NewPassword))
-	newPasswordQuery := fmt.Sprintf("UPDATE public.users SET password = '%s'", hashedPassword)
-	conn.Query(newPasswordQuery)
-	rds.Del(context.Background(), strconv.Itoa(userid))
+	setNewPasswordQuery := fmt.Sprintf("UPDATE public.users SET password = '%s' WHERE userid = %d", hashedPassword, userid)
 
-	rds.Close()
+	_, err = conn.Query(setNewPasswordQuery)
 	conn.Close()
-	return fiber.NewError(200, "Пароль успешно изменен")
+	return err
 }
 
 type NewEmailCredentials struct {
