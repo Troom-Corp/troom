@@ -12,10 +12,9 @@ import (
 )
 
 type ProfileControllers struct {
-	ProfileServices services.ProfileInterface
 }
 
-func (p ProfileControllers) GetResetLink(c *fiber.Ctx) error {
+func (p ProfileControllers) GetResetPasswordLink(c *fiber.Ctx) error {
 	var oldPassword services.NewPasswordCredentials
 	c.BodyParser(&oldPassword)
 
@@ -23,11 +22,8 @@ func (p ProfileControllers) GetResetLink(c *fiber.Ctx) error {
 	authToken := strings.SplitN(authHeader, " ", 2)[1]
 	userId, _, _ := pkg.GetIdentity(authToken)
 
-	if oldPassword.GetResetLink(userId) != nil {
-		return fiber.NewError(500, "Ошибка")
-	}
-
-	return fiber.NewError(200, "Ссылка была отправлена на вашу почту")
+	err := oldPassword.GetResetPasswordLink(userId)
+	return err
 }
 
 func (p ProfileControllers) ResetPasswordByLink(c *fiber.Ctx) error {
@@ -62,4 +58,92 @@ func (p ProfileControllers) ResetPasswordByLink(c *fiber.Ctx) error {
 
 	rds.Del(context.Background(), strconv.Itoa(userId))
 	return fiber.NewError(200, "Пароль успешно обновлен")
+}
+
+func (p ProfileControllers) GetResetEmailLink(c *fiber.Ctx) error {
+	var oldEmail services.NewEmailCredentials
+	c.BodyParser(&oldEmail)
+
+	authHeader := c.Get("authorization")
+	authToken := strings.SplitN(authHeader, " ", 2)[1]
+	userId, _, _ := pkg.GetIdentity(authToken)
+
+	err := oldEmail.GetResetEmailLink(userId)
+	return err
+}
+
+func (p ProfileControllers) ResetEmailByLink(c *fiber.Ctx) error {
+	uuidCode := c.Params("uuid")
+
+	var newEmail services.NewEmailCredentials
+	c.BodyParser(&newEmail)
+
+	authHeader := c.Get("authorization")
+	authToken := strings.SplitN(authHeader, " ", 2)[1]
+	userId, _, _ := pkg.GetIdentity(authToken)
+
+	rds := storage.Redis.Open()
+	conn, err := storage.Sql.Open()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	defer rds.Close()
+
+	tokenUserId := rds.Get(context.Background(), strconv.Itoa(userId))
+
+	if tokenUserId.Val() != uuidCode {
+		return fiber.NewError(404, "Кажется вы пытаетесь подключиться к невалидной ссылке")
+	}
+
+	checkForDuplicateEmailQuery := fmt.Sprintf("SELECT email FROM public.users WHERE email = '%s'", newEmail)
+	_, err = conn.Query(checkForDuplicateEmailQuery)
+	if err != nil {
+		return fiber.NewError(409, "Такая почта уже существует")
+	}
+
+	err = newEmail.SetNewEmail(userId)
+	if err != nil {
+		return fiber.NewError(200, "Ошибка при обновлении почты")
+	}
+
+	rds.Del(context.Background(), strconv.Itoa(userId))
+	return fiber.NewError(200, "Почта успешно обновлена")
+}
+
+func (p ProfileControllers) UpdateLogin(c *fiber.Ctx) error {
+	var newLoginCredentials services.NewLoginCredentials
+	c.BodyParser(&newLoginCredentials)
+	authHeader := c.Get("authorization")
+	authToken := strings.SplitN(authHeader, " ", 2)[1]
+	userId, _, _ := pkg.GetIdentity(authToken)
+
+	err := newLoginCredentials.SetNewLogin(userId)
+	return err
+}
+
+func (p ProfileControllers) UpdateInfo(c *fiber.Ctx) error {
+	var newProfileInfo services.ProfileInfo
+	c.BodyParser(&newProfileInfo)
+	authHeader := c.Get("authorization")
+	authToken := strings.SplitN(authHeader, " ", 2)[1]
+	userId, _, _ := pkg.GetIdentity(authToken)
+
+	err := newProfileInfo.UpdateInfo(userId)
+	return err
+}
+
+func (p ProfileControllers) Profile(c *fiber.Ctx) error {
+	authHeader := c.Get("authorization")
+	authToken := strings.SplitN(authHeader, " ", 2)[1]
+	userId, _, err := pkg.GetIdentity(authToken)
+	if err != nil {
+		return fiber.NewError(500, "Ошибка при открытии профиля")
+	}
+
+	userProfile, err := services.User{UserId: userId}.UserProfile()
+	if err != nil {
+		return err
+	}
+	return c.JSON(userProfile)
 }

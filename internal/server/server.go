@@ -26,16 +26,20 @@ func Start() {
 		AllowCredentials: true,
 	}))
 
-	api.Get("/profile", middleware.Middleware, userControllers.Profile)
-
 	// users group
 	users := api.Group("/users")
 	users.Get("/", userControllers.SearchUsersByQuery)
 	users.Get("/@:nick", userControllers.GetUserByNick)
 	users.Delete("/", middleware.Middleware, userControllers.DeleteUser)
 
-	users.Patch("/reset_password/", middleware.Middleware, profileControllers.GetResetLink)
-	users.Patch("/reset_password/:uuid", middleware.Middleware, profileControllers.ResetPasswordByLink)
+	profile := api.Group("/profile")
+	profile.Get("/", middleware.Middleware, profileControllers.Profile)
+	profile.Patch("/reset_password/", middleware.Middleware, profileControllers.GetResetPasswordLink)
+	profile.Patch("/reset_password/:uuid", middleware.Middleware, profileControllers.ResetPasswordByLink)
+	profile.Patch("/reset_email", middleware.Middleware, profileControllers.GetResetEmailLink)
+	profile.Patch("/reset_email/:uuid", middleware.Middleware, profileControllers.ResetEmailByLink)
+	profile.Patch("/update_login", middleware.Middleware, profileControllers.UpdateLogin)
+	profile.Patch("/update_info", middleware.Middleware, profileControllers.UpdateInfo)
 
 	// posts group
 	posts := api.Group("/posts")
@@ -53,8 +57,8 @@ func Start() {
 
 	// authorization group
 	auth := api.Group("/auth")
-	auth.Post("/sign_in", authControllers.SignIn)
-	auth.Post("/sign_up", authControllers.SignUp)
+	auth.Post("/users/sign_in", authControllers.UserSignIn)
+	auth.Post("/users/sign_up", authControllers.UserSignUp)
 	auth.Post("/logout", authControllers.Logout)
 	auth.Post("/refresh_token", authControllers.RefreshToken)
 

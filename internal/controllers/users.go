@@ -8,8 +8,7 @@ import (
 )
 
 type UserControllers struct {
-	UserServices        services.UserInterface
-	UserProfileServices services.ProfileInterface
+	UserServices services.UserInterface
 }
 
 func (u UserControllers) GetUserByNick(c *fiber.Ctx) error {
@@ -60,21 +59,6 @@ func (u UserControllers) DeleteUser(c *fiber.Ctx) error {
 		return err
 	}
 	return fiber.NewError(200, "Пользователь успешно удален")
-}
-
-func (u UserControllers) Profile(c *fiber.Ctx) error {
-	authHeader := c.Get("authorization")
-	authToken := strings.SplitN(authHeader, " ", 2)[1]
-	userId, _, err := pkg.GetIdentity(authToken)
-	if err != nil {
-		return fiber.NewError(500, "Ошибка при открытии профиля")
-	}
-
-	userProfile, err := services.User{UserId: userId}.UserProfile()
-	if err != nil {
-		return err
-	}
-	return c.JSON(userProfile)
 }
 
 //func (u UserControllers) UpdateInfo(c *fiber.Ctx) error {

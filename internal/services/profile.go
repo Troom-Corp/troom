@@ -9,32 +9,42 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type ProfileInterface interface {
-	UpdateInfo(userid int) error // FirstName, SecondName, Gender, DateOfBirth, Location, Job, Links, Avatar, Bio
-
-	// need to check for duplicates
-	ResetPassword(userid int) error
-	CheckCode(userid int) error
-	UpdatePhone() error
-	UpdateEmail() error
-	UpdateLogin(newLogin string, userid int) error
-}
-
-type ProfileInfo struct {
-	FirstName   string
-	SecondName  string
-	Gender      string
-	DateOfBirth string
-	Location    string
-	Job         string
-	Links       string
-	Avatar      string
-	Bio         string
-}
-
 type UserIdentification struct {
 	UserId int    `json:"userid"`
 	Email  string `json:"email"`
+}
+
+type ProfileInfo struct {
+	FirstName   string `json:"firstName"`
+	SecondName  string `json:"secondName"`
+	Gender      string `json:"gender"`
+	DateOfBirth string `json:"date_of_birth"`
+	Location    string `json:"location"`
+	Job         string `json:"job"`
+	Links       string `json:"links"`
+	Avatar      string `json:"avatar"`
+	Bio         string `json:"bio"`
+}
+
+func (pi ProfileInfo) UpdateInfo(userid int) error {
+	var userId int
+
+	conn, err := storage.Sql.Open()
+	if err != nil {
+		return fiber.NewError(500, "Ошибка при подключении к базе данных")
+	}
+
+	updateInfoQuery := fmt.Sprintf("UPDATE public.users SET "+
+		"firstname = '%s', secondname = '%s', gender = '%s', dateofbirth = '%s', location = '%s', job = '%s', links = '%s', avatar = '%s', bio = '%s' WHERE userid = %d RETURNING userid",
+		pi.FirstName, pi.SecondName, pi.Gender, pi.DateOfBirth, pi.Location, pi.Job, pi.Links, pi.Avatar, pi.Bio, userid)
+	err = conn.Get(&userId, updateInfoQuery)
+
+	if userId == 0 {
+		conn.Close()
+		return fiber.NewError(409, "Пользователя не существует")
+	}
+	err = conn.Close()
+	return err
 }
 
 type NewPasswordCredentials struct {
@@ -42,7 +52,7 @@ type NewPasswordCredentials struct {
 	NewPassword string `json:"new_password"`
 }
 
-func (np NewPasswordCredentials) GetResetLink(userid int) error {
+func (np NewPasswordCredentials) GetResetPasswordLink(userid int) error {
 	var userIdentity UserIdentification
 	userIdentity.UserId = userid
 
@@ -75,11 +85,11 @@ func (np NewPasswordCredentials) GetResetLink(userid int) error {
 	newPasswordData, _ := json.Marshal(userIdentity)
 
 	rabbitConn, _ := broker.RabbitBroker.Connect()
-	broker.Rabbit{Broker: rabbitConn}.SendMsg("verifyPassword", newPasswordData)
+	broker.Rabbit{Broker: rabbitConn}.SendMsg("resetPassword", newPasswordData)
 
 	broker.Rabbit{Broker: rabbitConn}.Close()
 	conn.Close()
-	return nil
+	return fiber.NewError(200, "Ссылка была отправлена на вашу почту")
 }
 
 func (np NewPasswordCredentials) SetNewPassword(userid int) error {
@@ -97,9 +107,72 @@ func (np NewPasswordCredentials) SetNewPassword(userid int) error {
 }
 
 type NewEmailCredentials struct {
-	OldEmail         string
-	VerificationCode string
-	NewEmail         string
+	NewEmail string `json:"new_email"`
+}
+
+func (ne NewEmailCredentials) GetResetEmailLink(userid int) error {
+	var userIdentity UserIdentification
+	userIdentity.UserId = userid
+
+	conn, err := storage.Sql.Open()
+	if err != nil {
+		return fiber.NewError(500, "Ошибка при подключении к базе данных")
+	}
+	defer conn.Close()
+	getUserEmailQuery := fmt.Sprintf("SELECT email FROM public.users WHERE userid = %d", userid)
+	conn.Get(&userIdentity.Email, getUserEmailQuery)
+
+	if userIdentity.Email == "" {
+		return fiber.NewError(404, "Пользователя не сущесвует")
+	}
+
+	newEmailData, _ := json.Marshal(userIdentity)
+
+	rabbitConn, _ := broker.RabbitBroker.Connect()
+	broker.Rabbit{Broker: rabbitConn}.SendMsg("resetEmail", newEmailData)
+
+	broker.Rabbit{Broker: rabbitConn}.Close()
+	conn.Close()
+	return fiber.NewError(200, "Ссылка была отправлена на вашу почту")
+}
+
+func (ne NewEmailCredentials) SetNewEmail(userid int) error {
+	conn, err := storage.Sql.Open()
+	if err != nil {
+		return fiber.NewError(500, "Ошибка при подключении к базе данных")
+	}
+
+	setNewPasswordQuery := fmt.Sprintf("UPDATE public.users SET email = '%s' WHERE userid = %d", ne.NewEmail, userid)
+	fmt.Println(setNewPasswordQuery)
+	_, err = conn.Query(setNewPasswordQuery)
+	conn.Close()
+	return err
+}
+
+type NewLoginCredentials struct {
+	NewLogin string `json:"new_login"`
+}
+
+func (nl NewLoginCredentials) SetNewLogin(userid int) error {
+	var userLogin string
+
+	conn, err := storage.Sql.Open()
+	if err != nil {
+		return fiber.NewError(500, "Ошибка при подключении к базе данных")
+	}
+
+	getLoginQuery := fmt.Sprintf("SELECT nick FROM public.users WHERE nick = '%s'", nl.NewLogin)
+	updateLoginQuery := fmt.Sprintf("UPDATE public.users SET nick = '%s' WHERE userid = %d RETURNING nick", nl.NewLogin, userid)
+	conn.Get(&userLogin, getLoginQuery)
+
+	if userLogin != "" || nl.NewLogin == "" {
+		conn.Close()
+		return fiber.NewError(409, "Такой логин уже используется")
+	}
+
+	conn.Query(updateLoginQuery)
+	conn.Close()
+	return fiber.NewError(200, "Логин успешно обновлен")
 }
 
 type NewPhoneCredentials struct {
@@ -108,74 +181,6 @@ type NewPhoneCredentials struct {
 	NewPhone            string
 }
 
-// UpdateInfo Обновляет данные профиля пользователя
-func (p ProfileInfo) UpdateInfo(userid int) error {
-	var userId int
-
-	conn, err := storage.Sql.Open()
-	if err != nil {
-		return fiber.NewError(500, "Ошибка при подключении к базе данных")
-	}
-
-	updateInfoQuery := fmt.Sprintf("UPDATE public.users SET "+
-		"firstname = '%s', secondname = '%s', gender = '%s', dateofbirth = '%s', location = '%s', job = '%s', links = '%s', avatar = '%s', bio = '%s' WHERE userid = %d RETURNING userid",
-		p.FirstName, p.SecondName, p.Gender, p.DateOfBirth, p.Location, p.Job, p.Links, p.Avatar, p.Bio, userid)
-	err = conn.Get(&userId, updateInfoQuery)
-
-	if userId == 0 {
-		conn.Close()
-		return fiber.NewError(409, "Пользователя не существует")
-	}
-	err = conn.Close()
-	return err
-}
-
 func (np NewPhoneCredentials) UpdatePhone() error {
-	return nil
-}
-
-func (ne NewEmailCredentials) UpdateEmail() error {
-	var userEmail string
-
-	conn, err := storage.Sql.Open()
-	if err != nil {
-		return fiber.NewError(500, "Ошибка при подключении к базе данных")
-	}
-
-	getEmailQuery := fmt.Sprintf("SELECT email FROM public.users WHERE email = '%s' RETURNING email", ne.OldEmail)
-	updateEmailQuery := fmt.Sprintf("UPDATE SET email = '%s'", ne.NewEmail)
-	conn.Get(&userEmail, getEmailQuery)
-
-	if userEmail != "" {
-		conn.Close()
-		return fiber.NewError(409, "Такая почта уже используется")
-	}
-
-	// здесь должна быть логика брокера сообщений
-
-	conn.Query(updateEmailQuery)
-	conn.Close()
-	return nil
-}
-
-func (p ProfileInfo) UpdateLogin(newLogin string, userid int) error {
-	var userLogin string
-
-	conn, err := storage.Sql.Open()
-	if err != nil {
-		return fiber.NewError(500, "Ошибка при подключении к базе данных")
-	}
-
-	getLoginQuery := fmt.Sprintf("SELECT nick FROM public.users WHERE nick = '%s'", newLogin)
-	updateLoginQuery := fmt.Sprintf("UPDATE public.users SET nick = '%s' WHERE userid = %d RETURNING nick", newLogin, userid)
-	conn.Get(&userLogin, getLoginQuery)
-
-	if userLogin != "" {
-		conn.Close()
-		return fiber.NewError(409, "Такой nick уже используется")
-	}
-
-	conn.Query(updateLoginQuery)
-	conn.Close()
 	return nil
 }
