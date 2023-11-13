@@ -14,7 +14,7 @@ type AuthControllers struct {
 	SignUpService services.SignUpInterface
 }
 
-func (a AuthControllers) SignIn(c *fiber.Ctx) error {
+func (a AuthControllers) UserSignIn(c *fiber.Ctx) error {
 	var credentials services.SignInCredentials
 	err := c.BodyParser(&credentials)
 
@@ -41,7 +41,7 @@ func (a AuthControllers) SignIn(c *fiber.Ctx) error {
 	return c.JSON(accessToken)
 }
 
-func (a AuthControllers) SignUp(c *fiber.Ctx) error {
+func (a AuthControllers) UserSignUp(c *fiber.Ctx) error {
 	var credentials services.SignUpCredentials
 	err := c.BodyParser(&credentials)
 

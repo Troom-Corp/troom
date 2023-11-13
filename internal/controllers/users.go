@@ -8,8 +8,7 @@ import (
 )
 
 type UserControllers struct {
-	UserServices        services.UserInterface
-	UserProfileServices services.ProfileInterface
+	UserServices services.UserInterface
 }
 
 func (u UserControllers) GetUserByNick(c *fiber.Ctx) error {
@@ -62,58 +61,43 @@ func (u UserControllers) DeleteUser(c *fiber.Ctx) error {
 	return fiber.NewError(200, "Пользователь успешно удален")
 }
 
-func (u UserControllers) Profile(c *fiber.Ctx) error {
-	authHeader := c.Get("authorization")
-	authToken := strings.SplitN(authHeader, " ", 2)[1]
-	userId, _, err := pkg.GetIdentity(authToken)
-	if err != nil {
-		return fiber.NewError(500, "Ошибка при открытии профиля")
-	}
+//func (u UserControllers) UpdateInfo(c *fiber.Ctx) error {
+//	var newUserCredentials services.User
+//	c.BodyParser(&newUserCredentials)
+//
+//	authHeader := c.Get("authorization")
+//	authToken := strings.SplitN(authHeader, " ", 2)[1]
+//	userId, _, err := pkg.GetIdentity(authToken)
+//	if err != nil {
+//		return fiber.NewError(500, "Ошибка при обновлении данных")
+//	}
+//
+//	newUserCredentials.UserId = userId
+//	u.UserProfileServices = newUserCredentials
+//	err = u.UserProfileServices.UpdateInfo()
+//	if err != nil {
+//		return err
+//	}
+//	return fiber.NewError(200, "Пользователь успешно обновлен")
+//}
 
-	userProfile, err := services.User{UserId: userId}.UserProfile()
-	if err != nil {
-		return err
-	}
-	return c.JSON(userProfile)
-}
-
-func (u UserControllers) UpdateInfo(c *fiber.Ctx) error {
-	var newUserCredentials services.User
-	c.BodyParser(&newUserCredentials)
-
-	authHeader := c.Get("authorization")
-	authToken := strings.SplitN(authHeader, " ", 2)[1]
-	userId, _, err := pkg.GetIdentity(authToken)
-	if err != nil {
-		return fiber.NewError(500, "Ошибка при обновлении данных")
-	}
-
-	newUserCredentials.UserId = userId
-	u.UserProfileServices = newUserCredentials
-	err = u.UserProfileServices.UpdateInfo()
-	if err != nil {
-		return err
-	}
-	return fiber.NewError(200, "Пользователь успешно обновлен")
-}
-
-func (u UserControllers) UpdateLogin(c *fiber.Ctx) error {
-	login := struct {
-		Login string
-	}{}
-	c.BodyParser(&login)
-
-	authHeader := c.Get("authorization")
-	authToken := strings.SplitN(authHeader, " ", 2)[1]
-	userId, _, err := pkg.GetIdentity(authToken)
-	if err != nil {
-		return fiber.NewError(500, "Ошибка при обновлении данных")
-	}
-
-	u.UserProfileServices = services.User{UserId: userId, Login: login.Login}
-	err = u.UserProfileServices.UpdateLogin()
-	if err != nil {
-		return err
-	}
-	return fiber.NewError(200, "Логин успешно обновлен")
-}
+//func (u UserControllers) UpdateLogin(c *fiber.Ctx) error {
+//	login := struct {
+//		Login string
+//	}{}
+//	c.BodyParser(&login)
+//
+//	authHeader := c.Get("authorization")
+//	authToken := strings.SplitN(authHeader, " ", 2)[1]
+//	userId, _, err := pkg.GetIdentity(authToken)
+//	if err != nil {
+//		return fiber.NewError(500, "Ошибка при обновлении данных")
+//	}
+//
+//	u.UserProfileServices = services.User{UserId: userId, Login: login.Login}
+//	err = u.UserProfileServices.UpdateLogin()
+//	if err != nil {
+//		return err
+//	}
+//	return fiber.NewError(200, "Логин успешно обновлен")
+//}
