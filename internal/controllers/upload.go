@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"path/filepath"
 
+	"github.com/Troom-Corp/troom/internal/services"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
 
 type FileControllers struct {
-	FileInterface FileInterface
+	FileInterface services.FileInterface
 }
 
 func (f FileControllers) UploadFile(c *fiber.Ctx) error {
@@ -19,7 +20,7 @@ func (f FileControllers) UploadFile(c *fiber.Ctx) error {
 		return fiber.NewError(500, "Неизвестная ошибка")
 	}
 
-	isFileValid := f.ValidData(file.Filename, int(file.Size))
+	isFileValid := f.FileInterface.ValidData(file.Filename, int(file.Size))
 
 	if isFileValid.Ext != "" || isFileValid.Lenght != "" {
 		isFileValidString, _ := json.Marshal(isFileValid)

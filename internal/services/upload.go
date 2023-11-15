@@ -11,9 +11,11 @@ type ValidFile struct {
 	Lenght string
 }
 
+type FileCredentials struct{}
+
 const FileMaxLeignht = 5242880
 
-func (f FileControllers) ValidData(filename string, filesize int) ValidFile {
+func (f FileCredentials) ValidData(filename string, filesize int) ValidFile {
 	var isFileValid ValidFile
 	ext := filepath.Ext(filename)
 	if ext == ".jpg" || ext == ".jpeg" || ext == ".png" {
