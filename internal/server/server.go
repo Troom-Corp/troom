@@ -14,6 +14,7 @@ var authControllers = controllers.AuthControllers{}
 var companyControllers = controllers.CompanyControllers{}
 var vacanciesControllers = controllers.VacancyControllers{}
 var profileControllers = controllers.ProfileControllers{}
+var uploadControllers = controllers.UploadControllers{}
 
 func Start() {
 	app := fiber.New()
@@ -32,6 +33,12 @@ func Start() {
 	users.Get("/@:nick", userControllers.GetUserByNick)
 	users.Delete("/", middleware.Middleware, userControllers.DeleteUser)
 
+	// upload group
+	upload := api.Group("/uploads")
+	upload.Patch("/set_avatar", uploadControllers.SetAvatar)
+	upload.Get("/:filename", uploadControllers.GetPhoto)
+
+	// profile group
 	profile := api.Group("/profile")
 	profile.Get("/", middleware.Middleware, profileControllers.Profile)
 	profile.Patch("/reset_password/", middleware.Middleware, profileControllers.GetResetPasswordLink)

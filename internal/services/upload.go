@@ -2,20 +2,20 @@ package services
 
 import "path/filepath"
 
-type FileInterface interface {
+type UploadInterface interface {
 	ValidData(filename string, filesize int) ValidFile
 }
 
 type ValidFile struct {
-	Ext    string
-	Lenght string
+	Ext    string `json:"isExt"`
+	Lenght string `json:"isLenght"`
 }
 
-type FileCredentials struct{}
+type UploadCredentials struct{}
 
 const FileMaxLeignht = 5242880
 
-func (f FileCredentials) ValidData(filename string, filesize int) ValidFile {
+func (u UploadCredentials) ValidData(filename string, filesize int) ValidFile {
 	var isFileValid ValidFile
 	ext := filepath.Ext(filename)
 	if ext == ".jpg" || ext == ".jpeg" || ext == ".png" {
