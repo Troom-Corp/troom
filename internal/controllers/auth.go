@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/Troom-Corp/troom/internal/pkg"
 	"github.com/Troom-Corp/troom/internal/services"
+	"github.com/Troom-Corp/troom/internal/storage"
 	"github.com/gofiber/fiber/v2"
 	"strings"
 	"time"
@@ -51,7 +53,7 @@ func (a AuthControllers) UserSignUp(c *fiber.Ctx) error {
 	a.SignUpService = credentials
 	isUserValid := a.SignUpService.ValidData()
 
-	if isUserValid.Nick != "" || isUserValid.Email != "" || isUserValid.Password != "" {
+	if isUserValid.Login != "" || isUserValid.Email != "" || isUserValid.Password != "" {
 		isUserValidString, _ := json.Marshal(isUserValid)
 		return fiber.NewError(409, string(isUserValidString))
 	}
@@ -118,4 +120,45 @@ func (a AuthControllers) Logout(c *fiber.Ctx) error {
 		Path:  "/",
 	})
 	return fiber.NewError(200, "Вы успешно вышли из аккаунта")
+}
+
+func (a AuthControllers) TestSingIn(c *fiber.Ctx) error {
+	var authUser services.User
+	var credentials services.SignInCredentials
+	err := c.BodyParser(&credentials)
+
+	if err != nil {
+		return fiber.NewError(500, "Неизвестная ошибка")
+	}
+
+	a.SignInService = credentials
+	userId, err := a.SignInService.ValidData()
+
+	if err != nil {
+		return err
+	}
+	conn, err := storage.Sql.Open()
+
+	if err != nil {
+		return fiber.NewError(500, "Ошибка при подключении к базе данных")
+	}
+	defer conn.Close()
+	getUserQuery := fmt.Sprintf("SELECT * FROM public.users WHERE email = '%s' OR nick = '%s'", credentials.Login, credentials.Login)
+	conn.Get(&authUser, getUserQuery)
+
+	accessToken, _ := pkg.CreateAccessToken(userId)
+	refreshToken, _ := pkg.CreateRefreshToken(userId)
+
+	c.Cookie(&fiber.Cookie{
+		Name:    "refresh_token",
+		Value:   refreshToken,
+		Expires: time.Now().Add(time.Minute),
+	})
+	c.Cookie(&fiber.Cookie{
+		Name:    "access_token",
+		Value:   accessToken,
+		Expires: time.Now().Add(time.Minute),
+	})
+
+	return c.JSON(authUser)
 }
