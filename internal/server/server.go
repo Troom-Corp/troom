@@ -61,6 +61,7 @@ func Start() {
 	auth.Post("/users/sign_up", authControllers.UserSignUp)
 	auth.Post("/logout", authControllers.Logout)
 	auth.Post("/refresh_token", authControllers.RefreshToken)
+	auth.Post("/testauth", authControllers.TestSingIn)
 
 	// companies group
 	company := api.Group("/companies")
