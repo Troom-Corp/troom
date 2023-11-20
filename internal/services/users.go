@@ -11,7 +11,6 @@ type UserInterface interface {
 	ReadAll() ([]User, error)
 	ReadByLogin() (User, error)
 	SearchByQuery(string) ([]User, error)
-	UserProfile() (User, error)
 	Delete() error
 }
 
@@ -100,24 +99,6 @@ func (u User) ReadByLogin() (User, error) {
 
 	conn.Close()
 	return user, nil
-}
-
-func (u User) UserProfile() (User, error) {
-	var userProfile User
-	conn, err := storage.Sql.Open()
-	if err != nil {
-		return User{}, fiber.NewError(500, "Ошибка при подключении к базе данных")
-	}
-	getProfileQuery := fmt.Sprintf("SELECT * FROM users WHERE userid = %d", u.UserId)
-	err = conn.Get(&userProfile, getProfileQuery)
-
-	if err != nil {
-		conn.Close()
-		return User{}, fiber.NewError(404, "Ошибка при открытии профиля")
-	}
-
-	conn.Close()
-	return userProfile, nil
 }
 
 // SearchByQuery Найти пользователей по searchQuery

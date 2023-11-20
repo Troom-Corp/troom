@@ -14,10 +14,12 @@ var authControllers = controllers.AuthControllers{}
 var companyControllers = controllers.CompanyControllers{}
 var vacanciesControllers = controllers.VacancyControllers{}
 var profileControllers = controllers.ProfileControllers{}
+var uploadControllers = controllers.UploadControllers{}
 
 func Start() {
 	app := fiber.New()
 	api := app.Group("/api")
+	app.Static("/uploads", "./uploads")
 
 	// CORS configuration
 	app.Use(cors.New(cors.Config{
@@ -32,6 +34,11 @@ func Start() {
 	users.Get("/@:nick", userControllers.GetUserByNick)
 	users.Delete("/", middleware.Middleware, userControllers.DeleteUser)
 
+	// upload group
+	upload := api.Group("/uploads")
+	upload.Patch("/set_avatar", uploadControllers.SetAvatar)
+
+	// profile group
 	profile := api.Group("/profile")
 	profile.Get("/", middleware.Middleware, profileControllers.Profile)
 	profile.Patch("/reset_password/", middleware.Middleware, profileControllers.GetResetPasswordLink)

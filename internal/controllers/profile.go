@@ -128,8 +128,8 @@ func (p ProfileControllers) UpdateInfo(c *fiber.Ctx) error {
 	authHeader := c.Get("authorization")
 	authToken := strings.SplitN(authHeader, " ", 2)[1]
 	userId, _, _ := pkg.GetIdentity(authToken)
-
-	err := newProfileInfo.UpdateInfo(userId)
+	newProfileInfo.UserId = userId
+	err := newProfileInfo.UpdateInfo()
 	return err
 }
 
@@ -141,7 +141,7 @@ func (p ProfileControllers) Profile(c *fiber.Ctx) error {
 		return fiber.NewError(500, "Ошибка при открытии профиля")
 	}
 
-	userProfile, err := services.User{UserId: userId}.UserProfile()
+	userProfile, err := services.ProfileInfo{UserId: userId}.UserProfile()
 	if err != nil {
 		return err
 	}

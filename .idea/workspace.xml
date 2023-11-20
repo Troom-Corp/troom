@@ -6,10 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="5b6e300a-60f8-4331-9479-43a8c1408980" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+
       <change beforePath="$PROJECT_DIR$/internal/controllers/auth.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/controllers/auth.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/pkg/tools.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/pkg/tools.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/server/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/server/server.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/services/signUp.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/signUp.go" afterDir="false" />
+
       <change beforePath="$PROJECT_DIR$/internal/services/users.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/users.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
