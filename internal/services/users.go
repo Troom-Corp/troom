@@ -7,7 +7,7 @@ import (
 )
 
 type UserInterface interface {
-	Create() (int, error)
+	Create() (User, error)
 	ReadAll() ([]User, error)
 	ReadByLogin() (User, error)
 	SearchByQuery(string) ([]User, error)
@@ -39,26 +39,26 @@ type User struct {
 }
 
 // Create Создать пользователя по входным данным и получить ID этого пользователя
-func (u User) Create() (int, error) {
-	var userId int
+func (u User) Create() (User, error) {
+	var newUser User
 	conn, err := storage.Sql.Open()
 
 	if err != nil {
-		return 0, fiber.NewError(500, "Ошибка при подключении к базе данных")
+		return User{}, fiber.NewError(500, "Ошибка при подключении к базе данных")
 	}
 
 	createQuery := fmt.Sprintf("INSERT INTO "+
 		"public.users (role, firstname, secondname, nick, email, password, gender, dateofbirth, location, job, phone, links, avatar, bio) "+
-		"VALUES ('user', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') RETURNING userid",
+		"VALUES ('user', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') RETURNING *",
 		u.FirstName, u.SecondName, u.Login, u.Email, u.Password, u.Gender, u.DateOfBirth, u.Location, u.Job, u.Phone, u.Links, u.Avatar, u.Bio)
 
-	err = conn.Get(&userId, createQuery)
+	err = conn.Get(&newUser, createQuery)
 	if err != nil {
-		return 0, fiber.NewError(500, "Ошибка при создании пользователя")
+		return User{}, fiber.NewError(500, "Ошибка при создании пользователя")
 	}
 
 	conn.Close()
-	return userId, nil
+	return newUser, nil
 }
 
 // ReadAll Прочитать всех пользователей

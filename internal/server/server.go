@@ -2,7 +2,6 @@ package server
 
 import (
 	"github.com/Troom-Corp/troom/internal/controllers"
-	"github.com/Troom-Corp/troom/internal/middleware"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
@@ -32,7 +31,7 @@ func Start() {
 	users := api.Group("/users")
 	users.Get("/", userControllers.SearchUsersByQuery)
 	users.Get("/@:nick", userControllers.GetUserByNick)
-	users.Delete("/", middleware.Middleware, userControllers.DeleteUser)
+	users.Delete("/", userControllers.DeleteUser)
 
 	// upload group
 	upload := api.Group("/uploads")
@@ -40,13 +39,13 @@ func Start() {
 
 	// profile group
 	profile := api.Group("/profile")
-	profile.Get("/", middleware.Middleware, profileControllers.Profile)
-	profile.Patch("/reset_password/", middleware.Middleware, profileControllers.GetResetPasswordLink)
-	profile.Patch("/reset_password/:uuid", middleware.Middleware, profileControllers.ResetPasswordByLink)
-	profile.Patch("/reset_email", middleware.Middleware, profileControllers.GetResetEmailLink)
-	profile.Patch("/reset_email/:uuid", middleware.Middleware, profileControllers.ResetEmailByLink)
-	profile.Patch("/update_login", middleware.Middleware, profileControllers.UpdateLogin)
-	profile.Patch("/update_info", middleware.Middleware, profileControllers.UpdateInfo)
+	profile.Get("/", profileControllers.Profile)
+	profile.Patch("/reset_password/", profileControllers.GetResetPasswordLink)
+	profile.Patch("/reset_password/:uuid", profileControllers.ResetPasswordByLink)
+	profile.Patch("/reset_email", profileControllers.GetResetEmailLink)
+	profile.Patch("/reset_email/:uuid", profileControllers.ResetEmailByLink)
+	profile.Patch("/update_login", profileControllers.UpdateLogin)
+	profile.Patch("/update_info", profileControllers.UpdateInfo)
 
 	// posts group
 	posts := api.Group("/posts")
@@ -66,9 +65,6 @@ func Start() {
 	auth := api.Group("/auth")
 	auth.Post("/users/sign_in", authControllers.UserSignIn)
 	auth.Post("/users/sign_up", authControllers.UserSignUp)
-	auth.Post("/logout", authControllers.Logout)
-	auth.Post("/refresh_token", authControllers.RefreshToken)
-	auth.Post("/testauth", authControllers.TestSingIn)
 
 	// companies group
 	company := api.Group("/companies")
