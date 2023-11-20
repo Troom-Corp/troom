@@ -15,54 +15,40 @@ type UploadControllers struct {
 	UploadInterface services.UploadInterface
 }
 
-func (u UploadControllers) GetPhoto(c *fiber.Ctx) error {
-	filename := c.Params("filename")
-	return c.SendFile("./uploads/" + filename)
-}
-
 func (u UploadControllers) SetAvatar(c *fiber.Ctx) error {
-	var newProfileInfo services.ProfileInfo
-	file, err := c.FormFile("file")
+	file, err := c.FormFile("avatar")
 
 	if err != nil {
-		return fiber.NewError(500, "Неизвестная ошибка")
+		return fiber.NewError(500, "Ошибка при загрузке аватара")
 	}
 
+	u.UploadInterface = services.UploadAvatar{}
 	isFileValid := u.UploadInterface.ValidData(file.Filename, int(file.Size))
 
-	if isFileValid.Ext != "" || isFileValid.Lenght != "" {
+	if isFileValid.Ext != "" || isFileValid.Length != "" {
 		isFileValidString, _ := json.Marshal(isFileValid)
 		return fiber.NewError(409, string(isFileValidString))
 	}
+	newFileName := uuid.New().String() + filepath.Ext(file.Filename)
 
 	authHeader := c.Get("authorization")
 	authToken := strings.SplitN(authHeader, " ", 2)[1]
 	userId, _, _ := pkg.GetIdentity(authToken)
-	user, _ := services.User{UserId: userId}.ReadByLogin()
 
-	newFileName := uuid.New().String() + filepath.Ext(file.Filename)
-	user.Avatar = newFileName
-
-	userData, err := json.Marshal(user)
+	err = c.SaveFile(file, "./uploads/"+newFileName)
 	if err != nil {
-		return fiber.NewError(500, "Неизвестная ошибка")
+		return fiber.NewError(500, "Ошибка при загрузке файла")
 	}
 
-	err = json.Unmarshal(userData, &newProfileInfo)
+	err = u.UploadInterface.DeleteOldAvatar(userId)
 	if err != nil {
-		return fiber.NewError(500, "Неизвестная ошибка")
+		return err
 	}
-
-	err = newProfileInfo.UpdateInfo(userId)
+	newProfileInfo := services.ProfileInfo{UserId: userId, Avatar: newFileName}
+	err = newProfileInfo.UpdateInfo()
 
 	if err != nil {
 		return fiber.NewError(500, "Ошибка при загрузке аватарки у пользователя")
-	}
-
-	err = c.SaveFile(file, "./uploads/"+newFileName)
-
-	if err != nil {
-		return fiber.NewError(500, "Ошибка при загрузке файла")
 	}
 
 	return fiber.NewError(200, "Вы успешно загрузили файл")

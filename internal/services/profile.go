@@ -15,6 +15,7 @@ type UserIdentification struct {
 }
 
 type ProfileInfo struct {
+	UserId      int    `json:"-"`
 	FirstName   string `json:"firstName"`
 	SecondName  string `json:"secondName"`
 	Gender      string `json:"gender"`
@@ -26,7 +27,25 @@ type ProfileInfo struct {
 	Bio         string `json:"bio"`
 }
 
-func (pi ProfileInfo) UpdateInfo(userid int) error {
+func (pi ProfileInfo) UserProfile() (User, error) {
+	var userProfile User
+	conn, err := storage.Sql.Open()
+	if err != nil {
+		return User{}, fiber.NewError(500, "Ошибка при подключении к базе данных")
+	}
+	getProfileQuery := fmt.Sprintf("SELECT * FROM users WHERE userid = %d", pi.UserId)
+	err = conn.Get(&userProfile, getProfileQuery)
+
+	if err != nil {
+		conn.Close()
+		return User{}, fiber.NewError(404, "Ошибка при открытии профиля")
+	}
+
+	conn.Close()
+	return userProfile, nil
+}
+
+func (pi ProfileInfo) UpdateInfo() error {
 	var userId int
 
 	conn, err := storage.Sql.Open()
@@ -36,7 +55,7 @@ func (pi ProfileInfo) UpdateInfo(userid int) error {
 
 	updateInfoQuery := fmt.Sprintf("UPDATE public.users SET "+
 		"firstname = '%s', secondname = '%s', gender = '%s', dateofbirth = '%s', location = '%s', job = '%s', links = '%s', avatar = '%s', bio = '%s' WHERE userid = %d RETURNING userid",
-		pi.FirstName, pi.SecondName, pi.Gender, pi.DateOfBirth, pi.Location, pi.Job, pi.Links, pi.Avatar, pi.Bio, userid)
+		pi.FirstName, pi.SecondName, pi.Gender, pi.DateOfBirth, pi.Location, pi.Job, pi.Links, pi.Avatar, pi.Bio, pi.UserId)
 	err = conn.Get(&userId, updateInfoQuery)
 
 	if userId == 0 {

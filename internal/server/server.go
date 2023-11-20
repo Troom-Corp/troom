@@ -19,6 +19,7 @@ var uploadControllers = controllers.UploadControllers{}
 func Start() {
 	app := fiber.New()
 	api := app.Group("/api")
+	app.Static("/uploads", "./uploads")
 
 	// CORS configuration
 	app.Use(cors.New(cors.Config{
@@ -36,7 +37,6 @@ func Start() {
 	// upload group
 	upload := api.Group("/uploads")
 	upload.Patch("/set_avatar", uploadControllers.SetAvatar)
-	upload.Get("/:filename", uploadControllers.GetPhoto)
 
 	// profile group
 	profile := api.Group("/profile")
