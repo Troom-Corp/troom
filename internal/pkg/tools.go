@@ -40,3 +40,12 @@ func ValidPassword(password string) bool {
 	}
 	return false
 }
+
+func ValidLogin(login string) bool {
+	containLatin, _ := regexp.Match(`[a-z0-9]`, []byte(login))
+
+	if len(login) < 10 && containLatin {
+		return true
+	}
+	return false
+}

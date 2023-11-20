@@ -15,7 +15,7 @@ type UserInterface interface {
 }
 
 type User struct {
-	UserId int    `db:"userid" json:"-"`
+	UserId int    `db:"userid" json:"id"`
 	Role   string `db:"role" json:"-"`
 
 	// первый этап регистрации
@@ -111,7 +111,7 @@ func (u User) SearchByQuery(searchQuery string) ([]User, error) {
 	}
 
 	searchFormat := "%" + searchQuery + "%"
-	searchByQuery := fmt.Sprintf("SELECT * FROM users WHERE LOWER(firstname) LIKE LOWER('%s') OR LOWER(secondname) LIKE LOWER('%s')", searchFormat, searchFormat)
+	searchByQuery := fmt.Sprintf("SELECT * FROM users WHERE LOWER(firstname) LIKE LOWER('%s') OR LOWER(secondname) LIKE LOWER('%s') OR LOWER(nick) LIKE LOWER('%s') LIMIT 5", searchFormat, searchFormat, searchFormat)
 
 	err = conn.Select(&queryUsers, searchByQuery)
 	if err != nil {

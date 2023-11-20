@@ -25,7 +25,7 @@ type SignUpCredentials struct {
 
 // ValidUser структура, которая отправляет все невалидные данные клиенту
 type ValidUser struct {
-	Nick     string `json:"isNick"`
+	Login    string `json:"isLogin"`
 	Email    string `json:"isEmail"`
 	Password string `json:"isPassword"`
 }
@@ -48,8 +48,8 @@ func (s SignUpCredentials) ValidData() ValidUser {
 		err = rows.Scan(&userEmail, &userNick)
 	}
 
-	if userNick == s.Login || len(s.Login) > 20 {
-		isUserValid.Nick = "Невалидный Login"
+	if userNick == s.Login || !pkg.ValidLogin(s.Login) {
+		isUserValid.Login = "Невалидный Login"
 	}
 
 	if userEmail == s.Email {
