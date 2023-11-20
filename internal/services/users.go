@@ -27,7 +27,7 @@ type User struct {
 
 	// второй этап регистрации
 	Gender      string `db:"gender" json:"gender"`
-	DateOfBirth string `db:"dateofbirth" json:"date_of_birth"`
+	DateOfBirth string `db:"dateofbirth" json:"birthday"`
 	Location    string `db:"location" json:"location"`
 	Job         string `db:"job" json:"job"`
 
