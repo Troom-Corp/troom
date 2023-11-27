@@ -30,15 +30,15 @@ func (a *AuthControllers) UserSignUp(c *fiber.Ctx) error {
 	c.BodyParser(&credentials)
 
 	newUser := models.User{
-		FirstName:  credentials.FirstName,
-		SecondName: credentials.SecondName,
-		Login:      credentials.Login,
-		Email:      credentials.Email,
-		Password:   credentials.Password,
-		Gender:     credentials.Gender,
-		Birthday:   credentials.Birthday,
-		Location:   credentials.Location,
-		Job:        credentials.Job,
+		FirstName: credentials.FirstName,
+		LastName:  credentials.LastName,
+		Login:     credentials.Login,
+		Email:     credentials.Email,
+		Password:  credentials.Password,
+		Gender:    credentials.Gender,
+		Birthday:  credentials.Birthday,
+		Location:  credentials.Location,
+		Job:       credentials.Job,
 	}
 
 	newUserObj, err := a.UserServices.InsertOne(newUser)
