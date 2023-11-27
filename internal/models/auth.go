@@ -18,19 +18,19 @@ type SignInCredentials struct {
 }
 
 type SignUpCredentials struct {
-	FirstName  string `json:"firstName"`
-	SecondName string `json:"lastName"`
-	Login      string `json:"login"`
-	Email      string `json:"email"`
-	Password   string `json:"password"`
-	Gender     string `json:"gender"`
-	Birthday   string `json:"birthday"`
-	Location   string `json:"location"`
-	Job        string `json:"job"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	Login     string `json:"login"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	Gender    string `json:"gender"`
+	Birthday  string `json:"birthday"`
+	Location  string `json:"location"`
+	Job       string `json:"job"`
 }
 
 func (s SignUpCredentials) Validate() bool {
-	if s.FirstName == "" || s.SecondName == "" || s.Login == "" || s.Email == "" || s.Password == "" || s.Gender == "" || s.Birthday == "" || s.Location == "" || s.Job == "" {
+	if s.FirstName == "" || s.LastName == "" || s.Login == "" || s.Email == "" || s.Password == "" || s.Gender == "" || s.Birthday == "" || s.Location == "" || s.Job == "" {
 		return false
 	}
 	return true

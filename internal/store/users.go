@@ -31,7 +31,7 @@ func (u user) InsertOne(user models.User) (models.User, error) {
 
 	err = u.db.Get(&createdUser, fmt.Sprintf("insert into users (role, firstname, secondname, nick, email, password, gender, dateofbirth, location, job, phone, links, avatar, bio) "+
 		"values ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') RETURNING *",
-		"users", user.FirstName, user.SecondName, user.Login, user.Email, passwordHash, user.Gender, user.Birthday, user.Location, user.Job, user.Phone, user.Links, user.Avatar, user.Bio))
+		"users", user.FirstName, user.LastName, user.Login, user.Email, passwordHash, user.Gender, user.Birthday, user.Location, user.Job, user.Phone, user.Links, user.Avatar, user.Bio))
 
 	return createdUser, err
 }
@@ -70,7 +70,7 @@ func (u user) FindForValidate(login, email string) ([]models.User, error) {
 	var resultUsers []models.User
 
 	err := u.db.Select(&resultUsers, fmt.Sprintf("select * from users where nick = '%s' union select * from users where email = '%s'", login, email))
-	
+
 	return resultUsers, err
 }
 
@@ -82,7 +82,7 @@ func (u user) UpdateOne(user models.User) error {
 
 	_, err = u.db.Query(fmt.Sprintf("update users set "+
 		"firstname='%s', secondname='%s', login='%s', email='%s', password='%s', gender='%s', dateofbirth='%s', location='%s', job= %s', phone='%s', links='%s', avatar='%s', bio='%s' where userid = %d",
-		user.FirstName, user.SecondName, user.Login, user.Email, passwordHash, user.Gender, user.Birthday, user.Location, user.Job, user.Phone, user.Links, user.Avatar, user.Bio, user.UserId))
+		user.FirstName, user.LastName, user.Login, user.Email, passwordHash, user.Gender, user.Birthday, user.Location, user.Job, user.Phone, user.Links, user.Avatar, user.Bio, user.UserId))
 
 	return err
 }

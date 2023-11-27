@@ -5,11 +5,11 @@ type User struct {
 	Role   string `db:"role" json:"-"`
 
 	// первый этап регистрации
-	FirstName  string `db:"firstname" json:"firstName"`
-	SecondName string `db:"secondname" json:"secondName"`
-	Login      string `db:"nick" json:"login"`
-	Email      string `db:"email" json:"email"`
-	Password   string `db:"password" json:"-"`
+	FirstName string `db:"firstname" json:"firstName"`
+	LastName  string `db:"secondname" json:"lastName"`
+	Login     string `db:"nick" json:"login"`
+	Email     string `db:"email" json:"email"`
+	Password  string `db:"password" json:"-"`
 
 	// второй этап регистрации
 	Gender   string `db:"gender" json:"gender"`
