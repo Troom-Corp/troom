@@ -1,4 +1,4 @@
-package storage
+package store
 
 import (
 	"github.com/redis/go-redis/v9"
@@ -18,8 +18,4 @@ func (r RedisDB) Open() *redis.Client {
 	})
 
 	return r.DB
-}
-
-func (r RedisDB) Close() error {
-	return r.DB.Close()
 }

@@ -30,22 +30,24 @@ func ConvertArrayToString(data []int) string {
 	return result
 }
 
-func ValidPassword(password string) bool {
-	containNums, _ := regexp.Match(`[0123456789]`, []byte(password))
-	containUpper, _ := regexp.Match(`[A-Z][a-z]`, []byte(password))
-	containSymbols, _ := regexp.Match(`[!@#$%^&*_-]`, []byte(password))
-
-	if (len(password) > 8 && len(password) < 20) && containNums && containUpper && containSymbols {
-		return true
-	}
-	return false
-}
+//func ValidPassword(password string) bool {
+//	containNums, _ := regexp.Match(`[0-9]`, []byte(password))
+//	containUpper, _ := regexp.Match(`[A-Z][a-z]`, []byte(password))
+//	containSymbols, _ := regexp.Match(`[!@#$%^&*_-]`, []byte(password))
+//
+//	if (len(password) > 8 && len(password) < 20) && containNums && containUpper && containSymbols {
+//		return true
+//	}
+//	return false
+//}
 
 func ValidLogin(login string) bool {
 	containLatin, _ := regexp.Match(`[a-z0-9]`, []byte(login))
+	containRussian, _ := regexp.Match(`[а-яА-Я]`, []byte(login))
 
-	if len(login) < 10 && containLatin {
-		return true
+	if len(login) > 10 || !containLatin || containRussian {
+		return false
 	}
-	return false
+
+	return true
 }
