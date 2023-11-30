@@ -16,7 +16,7 @@ type store struct {
 }
 
 func (s *store) Open() {
-	database, _ := sqlx.Open("pgx", "postgres://linkedin_xhd9_user:IJlZf9iZnorMNMUsmtdfQqg0Vwkk3IHo@dpg-cl5r9ut6fh7c73etr82g-a.oregon-postgres.render.com/linkedin_xhd9")
+	database, _ := sqlx.Open("pgx", "postgres://troomdb_user:D4Lj9R3yT03HrpjqqGzj7oZcUDMVD64z@dpg-clk8cg58td7s73dd5vfg-a.frankfurt-postgres.render.com/troomdb")
 	s.db = database
 }
 

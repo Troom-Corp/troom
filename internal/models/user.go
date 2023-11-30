@@ -6,14 +6,14 @@ type User struct {
 
 	// первый этап регистрации
 	FirstName string `db:"firstname" json:"firstName"`
-	LastName  string `db:"secondname" json:"lastName"`
-	Login     string `db:"nick" json:"login"`
+	LastName  string `db:"lastname" json:"lastName"`
+	Login     string `db:"login" json:"login"`
 	Email     string `db:"email" json:"email"`
 	Password  string `db:"password" json:"-"`
 
 	// второй этап регистрации
 	Gender   string `db:"gender" json:"gender"`
-	Birthday string `db:"dateofbirth" json:"birthday"`
+	Birthday string `db:"birthday" json:"birthday"`
 	Location string `db:"location" json:"location"`
 	Job      string `db:"job" json:"job"`
 

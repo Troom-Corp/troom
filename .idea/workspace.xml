@@ -5,33 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5b6e300a-60f8-4331-9479-43a8c1408980" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/internal/models/auth.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/models/user.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/routes/auth.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/routes/init.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/store/users.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/controllers/auth.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/controllers/auth.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/controllers/comments.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/controllers/companies.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/controllers/posts.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/controllers/profile.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/controllers/upload.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/controllers/users.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/controllers/vacancies.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/pkg/tools.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/pkg/tools.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/models/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/models/user.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/server/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/server/server.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/comments.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/companies.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/posts.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/profile.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/signIn.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/signUp.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/upload.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/users.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/vacancies.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/storage/redis.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/store/redis.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/storage/store.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/store/init.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/store/init.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/store/init.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/store/users.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/store/users.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
