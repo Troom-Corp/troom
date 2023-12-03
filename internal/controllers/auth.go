@@ -53,10 +53,6 @@ func (a AuthControllers) UserSignUp(c *fiber.Ctx) error {
 		Login:     credentials.Login,
 		Email:     credentials.Email,
 		Password:  credentials.Password,
-		Gender:    credentials.Gender,
-		Birthday:  credentials.Birthday,
-		Location:  credentials.Location,
-		Job:       credentials.Job,
 	}
 
 	if !credentials.Validate() {

@@ -11,16 +11,14 @@ type User struct {
 	Email     string `db:"email" json:"email"`
 	Password  string `db:"password" json:"-"`
 
-	// второй этап регистрации
+	// настраивается в профиле
 	Gender   string `db:"gender" json:"gender"`
 	Birthday string `db:"birthday" json:"birthday"`
 	Location string `db:"location" json:"location"`
 	Job      string `db:"job" json:"job"`
-
-	// настраивается в профиле
-	Phone  string `db:"phone" json:"phone"`   // in profile
-	Links  string `db:"links" json:"links"`   // in profile
-	Avatar string `db:"avatar" json:"avatar"` // in profile
-	Layout string `db:"layout" json:"layout"` // in profile
-	Bio    string `db:"bio" json:"bio"`       // in profile
+	Phone    string `db:"phone" json:"phone"`
+	Links    string `db:"links" json:"links"`
+	Avatar   string `db:"avatar" json:"avatar"`
+	Layout   string `db:"layout" json:"layout"`
+	Bio      string `db:"bio" json:"bio"`
 }
