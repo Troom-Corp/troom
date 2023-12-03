@@ -23,7 +23,7 @@ func (u UserControllers) Profile(c *fiber.Ctx) error {
 		return fiber.NewError(500, "Ошибка при получении профиля")
 	}
 
-	userProfile, err := u.UserServices.FindByID(ID)
+	userProfile, err := u.UserServices.FindOne("userid", ID)
 
 	if err != nil {
 		return fiber.NewError(500, "Ошибка при получении профиля")
@@ -37,7 +37,7 @@ func (u UserControllers) SearchByQuery(c *fiber.Ctx) error {
 	limit, _ := strconv.Atoi(queries["limit"])
 	page, _ := strconv.Atoi(queries["page"])
 
-	queryUser, err := u.UserServices.FindByQuery(queries["q"], limit, page)
+	queryUser, err := u.UserServices.QuerySearch(queries["q"], limit, page)
 	if err != nil {
 		return fiber.NewError(500, "Ошибка при поиске пользователя")
 	}

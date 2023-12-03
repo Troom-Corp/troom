@@ -21,7 +21,7 @@ func (a AuthControllers) UserSignIn(c *fiber.Ctx) error {
 		return fiber.NewError(400, "Bad request")
 	}
 
-	user, _ := a.UserServices.UserExists(credentials.Login)
+	user, _ := a.UserServices.IsUserExist(credentials.Login)
 
 	if err := pkg.Decode([]byte(user.Password), []byte(credentials.Password)); err != nil {
 		return fiber.NewError(404, "Неверные данные пользователя")
@@ -100,7 +100,7 @@ func (a AuthControllers) ValidateCredentials(c *fiber.Ctx) error {
 	var isCredentialsValid models.IsCredentials
 	c.BodyParser(&credentials)
 
-	isValid, _ := a.UserServices.FindForValidate(credentials.Login, credentials.Email)
+	isValid, _ := a.UserServices.ValidateCredentials(credentials.Login, credentials.Email)
 
 	for i := range isValid {
 		if isValid[i].Login == credentials.Login {

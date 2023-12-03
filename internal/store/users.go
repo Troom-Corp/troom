@@ -10,12 +10,11 @@ import (
 type InterfaceUser interface {
 	InsertOne(user models.User) (int, error)
 	DeleteOne(userid int) error
-	FindByQuery(searchQuery string, limit, page int) ([]models.User, error)
-	FindByLogin(login string) (models.User, error)
-	UserExists(login string) (models.User, error)
+	QuerySearch(searchQuery string, limit, page int) ([]models.User, error)
+	FindOne(key string, value interface{}) (models.User, error)
+	IsUserExist(login string) (models.User, error)
 	UpdateOne(user models.User) error
-	FindForValidate(login, email string) ([]models.User, error)
-	FindByID(userID int) (models.User, error)
+	ValidateCredentials(login, email string) ([]models.User, error)
 	UploadAvatar(userID int, filename string) (string, error)
 	UploadLayout(userID int, filename string) (string, error)
 	DeleteAvatar(userID int) (string, error)
@@ -46,7 +45,7 @@ func (u user) DeleteOne(userid int) error {
 	return err
 }
 
-func (u user) FindByQuery(searchQuery string, limit, page int) ([]models.User, error) {
+func (u user) QuerySearch(searchQuery string, limit, page int) ([]models.User, error) {
 	if limit == 0 {
 		limit = 5
 	}
@@ -59,15 +58,15 @@ func (u user) FindByQuery(searchQuery string, limit, page int) ([]models.User, e
 	return queryUsers, err
 }
 
-func (u user) FindByLogin(login string) (models.User, error) {
-	var resultUser models.User
+func (u user) FindOne(key string, value interface{}) (models.User, error) {
+	var result models.User
 
-	err := u.db.Get(&resultUser, fmt.Sprintf("select * from users where login = '%s'", login))
+	err := u.db.Get(&result, fmt.Sprintf("select * from users where %s = %v", key, value))
 
-	return resultUser, err
+	return result, err
 }
 
-func (u user) UserExists(login string) (models.User, error) {
+func (u user) IsUserExist(login string) (models.User, error) {
 	var resultUser models.User
 
 	err := u.db.Get(&resultUser, fmt.Sprintf("select * from users where login = '%s' or email = '%s'", login, login))
@@ -75,7 +74,7 @@ func (u user) UserExists(login string) (models.User, error) {
 	return resultUser, err
 }
 
-func (u user) FindForValidate(login, email string) ([]models.User, error) {
+func (u user) ValidateCredentials(login, email string) ([]models.User, error) {
 	var resultUsers []models.User
 
 	err := u.db.Select(&resultUsers, fmt.Sprintf("select * from users where login = '%s' union select * from users where email = '%s'", login, email))
@@ -94,14 +93,6 @@ func (u user) UpdateOne(user models.User) error {
 		user.FirstName, user.LastName, user.Login, user.Email, passwordHash, user.Gender, user.Birthday, user.Location, user.Job, user.Phone, user.Links, user.Avatar, user.Bio, user.UserId))
 
 	return err
-}
-
-func (u user) FindByID(userID int) (models.User, error) {
-	var profile models.User
-
-	err := u.db.Get(&profile, fmt.Sprintf("select * from users where userid = %d", userID))
-
-	return profile, err
 }
 
 func (u user) UploadAvatar(userID int, filename string) (string, error) {
