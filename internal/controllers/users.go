@@ -11,7 +11,7 @@ type UserControllers struct {
 }
 
 func (u *UserControllers) Profile(c *fiber.Ctx) error {
-	jwt := c.Cookies("next-auth.session-token")
+	jwt := c.Cookies("token")
 	ID, err := pkg.GetIdentity(jwt)
 	if err != nil {
 		return fiber.NewError(500, "Ошибка при получении профиля")
@@ -27,7 +27,7 @@ func (u *UserControllers) Profile(c *fiber.Ctx) error {
 }
 
 func (u *UserControllers) SearchByQuery(c *fiber.Ctx) error {
-	queryParam := c.Query("login")
+	queryParam := c.Query("q")
 
 	queryUser, err := u.UserServices.FindByQuery(queryParam)
 	if err != nil {

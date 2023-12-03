@@ -8,7 +8,7 @@ import (
 )
 
 type InterfaceUser interface {
-	InsertOne(user models.User) (models.User, error)
+	InsertOne(user models.User) (int, error)
 	DeleteOne(userid int) error
 	FindByQuery(searchQuery string) ([]models.User, error)
 	FindByLogin(login string) (models.User, error)
@@ -22,19 +22,19 @@ type user struct {
 	db *sqlx.DB
 }
 
-func (u user) InsertOne(user models.User) (models.User, error) {
-	var createdUser models.User
+func (u user) InsertOne(user models.User) (int, error) {
+	var insertedID int
 
 	passwordHash, err := pkg.Encode([]byte(user.Password))
 	if err != nil {
-		return createdUser, err
+		return insertedID, err
 	}
 
-	err = u.db.Get(&createdUser, fmt.Sprintf("insert into users (role, firstname, lastname, login, email, password, gender, birthday, location, job, phone, links, avatar, bio) "+
-		"values ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') RETURNING *",
+	err = u.db.Get(&insertedID, fmt.Sprintf("insert into users (role, firstname, lastname, login, email, password, gender, birthday, location, job, phone, links, avatar, bio) "+
+		"values ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') RETURNING userid",
 		"users", user.FirstName, user.LastName, user.Login, user.Email, passwordHash, user.Gender, user.Birthday, user.Location, user.Job, user.Phone, user.Links, user.Avatar, user.Bio))
 
-	return createdUser, err
+	return insertedID, err
 }
 
 func (u user) DeleteOne(userid int) error {
