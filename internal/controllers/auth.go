@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/Troom-Corp/troom/internal/models"
 	"github.com/Troom-Corp/troom/internal/pkg"
 	"github.com/Troom-Corp/troom/internal/store"
@@ -64,6 +65,7 @@ func (a AuthControllers) UserSignUp(c *fiber.Ctx) error {
 
 	insertedID, err := a.UserServices.InsertOne(newUserCredentials)
 	if err != nil {
+		fmt.Println(err)
 		return fiber.NewError(500, "Ошибка при создании пользователя")
 	}
 

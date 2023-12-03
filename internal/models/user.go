@@ -21,5 +21,6 @@ type User struct {
 	Phone  string `db:"phone" json:"phone"`   // in profile
 	Links  string `db:"links" json:"links"`   // in profile
 	Avatar string `db:"avatar" json:"avatar"` // in profile
+	Layout string `db:"layout" json:"layout"` // in profile
 	Bio    string `db:"bio" json:"bio"`       // in profile
 }
