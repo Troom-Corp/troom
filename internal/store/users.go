@@ -15,6 +15,7 @@ type InterfaceUser interface {
 	UserExists(login string) (models.User, error)
 	UpdateOne(user models.User) error
 	FindForValidate(login, email string) ([]models.User, error)
+	FindByID(userID int) (models.User, error)
 }
 
 type user struct {
@@ -85,4 +86,12 @@ func (u user) UpdateOne(user models.User) error {
 		user.FirstName, user.LastName, user.Login, user.Email, passwordHash, user.Gender, user.Birthday, user.Location, user.Job, user.Phone, user.Links, user.Avatar, user.Bio, user.UserId))
 
 	return err
+}
+
+func (u user) FindByID(userID int) (models.User, error) {
+	var profile models.User
+
+	err := u.db.Get(&profile, fmt.Sprintf("select * from users where userid = %d", userID))
+
+	return profile, err
 }

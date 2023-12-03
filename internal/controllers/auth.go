@@ -49,6 +49,8 @@ func (a *AuthControllers) UserSignUp(c *fiber.Ctx) error {
 	return c.JSON(newUserObj)
 }
 
+// ValidateCredentials runs on the client before the SignUp method
+
 func (a *AuthControllers) ValidateCredentials(c *fiber.Ctx) error {
 	var credentials models.SignUpCredentials
 	var isCredentialsValid models.IsCredentials
