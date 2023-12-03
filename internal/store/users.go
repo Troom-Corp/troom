@@ -10,7 +10,7 @@ import (
 type InterfaceUser interface {
 	InsertOne(user models.User) (int, error)
 	DeleteOne(userid int) error
-	FindByQuery(searchQuery string) ([]models.User, error)
+	FindByQuery(searchQuery string, limit, page int) ([]models.User, error)
 	FindByLogin(login string) (models.User, error)
 	UserExists(login string) (models.User, error)
 	UpdateOne(user models.User) error
@@ -46,11 +46,15 @@ func (u user) DeleteOne(userid int) error {
 	return err
 }
 
-func (u user) FindByQuery(searchQuery string) ([]models.User, error) {
+func (u user) FindByQuery(searchQuery string, limit, page int) ([]models.User, error) {
+	if limit == 0 {
+		limit = 5
+	}
+
 	var queryUsers []models.User
 
 	searchFormat := "%" + searchQuery + "%"
-	err := u.db.Select(&queryUsers, fmt.Sprintf("select * from users where lower(firstname) like lower('%s') or lower(lastname) like lower('%s') or lower(login) like lower('%s') LIMIT 5", searchFormat, searchFormat, searchFormat))
+	err := u.db.Select(&queryUsers, fmt.Sprintf("select * from users where lower(firstname) like lower('%s') or lower(lastname) like lower('%s') or lower(login) like lower('%s') LIMIT %d OFFSET %d", searchFormat, searchFormat, searchFormat, limit, page*limit))
 
 	return queryUsers, err
 }
