@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"os"
 	"path/filepath"
+	"strconv"
 )
 
 type UserControllers struct {
@@ -32,9 +33,11 @@ func (u UserControllers) Profile(c *fiber.Ctx) error {
 }
 
 func (u UserControllers) SearchByQuery(c *fiber.Ctx) error {
-	queryParam := c.Query("q")
+	queries := c.Queries()
+	limit, _ := strconv.Atoi(queries["limit"])
+	page, _ := strconv.Atoi(queries["page"])
 
-	queryUser, err := u.UserServices.FindByQuery(queryParam)
+	queryUser, err := u.UserServices.FindByQuery(queries["q"], limit, page)
 	if err != nil {
 		return fiber.NewError(500, "Ошибка при поиске пользователя")
 	}
