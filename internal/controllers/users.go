@@ -16,22 +16,6 @@ type UserControllers struct {
 	UserServices store.InterfaceUser
 }
 
-func (u UserControllers) Profile(c *fiber.Ctx) error {
-	jwt := c.Cookies("token")
-	ID, err := pkg.GetIdentity(jwt)
-	if err != nil {
-		return fiber.NewError(500, "Ошибка при получении профиля")
-	}
-
-	userProfile, err := u.UserServices.FindOne("userid", ID)
-
-	if err != nil {
-		return fiber.NewError(500, "Ошибка при получении профиля")
-	}
-
-	return c.JSON(userProfile)
-}
-
 func (u UserControllers) SearchByQuery(c *fiber.Ctx) error {
 	queries := c.Queries()
 	limit, _ := strconv.Atoi(queries["limit"])

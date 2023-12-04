@@ -123,6 +123,22 @@ func (a AuthControllers) ValidateCredentials(c *fiber.Ctx) error {
 	return c.JSON(isCredentialsValid)
 }
 
+func (u AuthControllers) Profile(c *fiber.Ctx) error {
+	jwt := c.Cookies("token")
+	ID, err := pkg.GetIdentity(jwt)
+	if err != nil {
+		return fiber.NewError(500, "Ошибка при получении профиля")
+	}
+
+	userProfile, err := u.UserServices.FindOne("userid", ID)
+
+	if err != nil {
+		return fiber.NewError(500, "Ошибка при получении профиля")
+	}
+
+	return c.JSON(userProfile)
+}
+
 func GetAuthControllers(store store.InterfaceStore) *AuthControllers {
 	return &AuthControllers{
 		UserServices: store.Users(),
