@@ -4,7 +4,12 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5b6e300a-60f8-4331-9479-43a8c1408980" name="Changes" comment="" />
+    <list default="true" id="5b6e300a-60f8-4331-9479-43a8c1408980" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/controllers/auth.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/controllers/auth.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/middleware/middleware.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/middleware/middleware.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/routes/auth.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/routes/auth.go" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

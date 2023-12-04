@@ -9,12 +9,12 @@ import (
 func JWTMiddleware(c *fiber.Ctx) error {
 	jwt := c.Cookies("token")
 	if jwt == "" {
-		return fiber.NewError(409, "Unauthorized")
+		return fiber.NewError(401, "Unauthorized")
 	}
 
 	_, err := pkg.GetIdentity(jwt)
 	if err != nil {
-		return fiber.NewError(409, "Unauthorized")
+		return fiber.NewError(401, "Unauthorized")
 	}
 
 	return c.Next()

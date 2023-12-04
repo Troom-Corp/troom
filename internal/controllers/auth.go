@@ -14,7 +14,7 @@ type AuthControllers struct {
 	UserServices store.InterfaceUser
 }
 
-func (a AuthControllers) UserSignIn(c *fiber.Ctx) error {
+func (a AuthControllers) SignIn(c *fiber.Ctx) error {
 	var credentials models.SignInCredentials
 	err := c.BodyParser(&credentials)
 	if err != nil {
@@ -33,16 +33,20 @@ func (a AuthControllers) UserSignIn(c *fiber.Ctx) error {
 	}
 
 	c.Cookie(&fiber.Cookie{
-		Name:  "token",
-		Value: token,
+		Name:     "token",
+		Value:    token,
+		SameSite: "None",
+		Expires:  time.Now().Add(time.Minute * 10),
+		Secure:   false,
 	})
 
 	return fiber.NewError(200, "Вы успешно вошли в аккаунт")
 }
 
-func (a AuthControllers) UserSignUp(c *fiber.Ctx) error {
+func (a AuthControllers) SignUp(c *fiber.Ctx) error {
 	var credentials models.SignUpCredentials
 	err := c.BodyParser(&credentials)
+
 	if err != nil {
 		return fiber.NewError(400, "Bad request")
 	}
@@ -71,10 +75,11 @@ func (a AuthControllers) UserSignUp(c *fiber.Ctx) error {
 	}
 
 	c.Cookie(&fiber.Cookie{
-		Name:    "token",
-		Value:   token,
-		Expires: time.Now().Add(time.Minute * 10),
-		Path:    "/",
+		Name:     "token",
+		Value:    token,
+		SameSite: "None",
+		Expires:  time.Now().Add(time.Minute * 10),
+		Secure:   false,
 	})
 
 	return fiber.NewError(201, "Пользователь успешно создан")
@@ -84,7 +89,6 @@ func (a AuthControllers) Logout(c *fiber.Ctx) error {
 	c.Cookie(&fiber.Cookie{
 		Name:  "token",
 		Value: "",
-		Path:  "/",
 	})
 
 	return fiber.NewError(200, "Вы успешно вышли из аккаунта")
