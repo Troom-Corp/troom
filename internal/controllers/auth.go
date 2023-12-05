@@ -7,7 +7,6 @@ import (
 	"github.com/Troom-Corp/troom/internal/pkg"
 	"github.com/Troom-Corp/troom/internal/store"
 	"github.com/gofiber/fiber/v2"
-	"time"
 )
 
 type AuthControllers struct {
@@ -36,7 +35,6 @@ func (a AuthControllers) SignIn(c *fiber.Ctx) error {
 		Name:     "token",
 		Value:    token,
 		SameSite: "None",
-		Expires:  time.Now().Add(time.Minute * 10),
 		Secure:   false,
 	})
 
@@ -78,7 +76,6 @@ func (a AuthControllers) SignUp(c *fiber.Ctx) error {
 		Name:     "token",
 		Value:    token,
 		SameSite: "None",
-		Expires:  time.Now().Add(time.Minute * 10),
 		Secure:   false,
 	})
 

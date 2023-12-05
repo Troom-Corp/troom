@@ -52,8 +52,9 @@ func (u user) QuerySearch(searchQuery string, limit, page int) ([]models.User, e
 
 	var queryUsers []models.User
 
-	searchFormat := "%" + searchQuery + "%"
-	err := u.db.Select(&queryUsers, fmt.Sprintf("select * from users where lower(firstname) like lower('%s') or lower(lastname) like lower('%s') or lower(login) like lower('%s') LIMIT %d OFFSET %d", searchFormat, searchFormat, searchFormat, limit, page*limit))
+	searchLogin := "%" + searchQuery + "%"
+	searchInfo := searchQuery + "%"
+	err := u.db.Select(&queryUsers, fmt.Sprintf("select * from users where lower(firstname) like lower('%s') or lower(lastname) like lower('%s') or lower(login) like lower('%s') LIMIT %d OFFSET %d", searchInfo, searchInfo, searchLogin, limit, page*limit))
 
 	return queryUsers, err
 }
