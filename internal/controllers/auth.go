@@ -7,6 +7,7 @@ import (
 	"github.com/Troom-Corp/troom/internal/pkg"
 	"github.com/Troom-Corp/troom/internal/store"
 	"github.com/gofiber/fiber/v2"
+	"strings"
 )
 
 type AuthControllers struct {
@@ -52,7 +53,7 @@ func (a AuthControllers) SignUp(c *fiber.Ctx) error {
 	newUserCredentials := models.User{
 		FirstName: credentials.FirstName,
 		LastName:  credentials.LastName,
-		Login:     credentials.Login,
+		Login:     strings.ToLower(credentials.Login),
 		Email:     credentials.Email,
 		Password:  credentials.Password,
 	}
