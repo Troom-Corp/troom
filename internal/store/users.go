@@ -62,7 +62,7 @@ func (u user) QuerySearch(searchQuery string, limit, page int) ([]models.User, e
 func (u user) FindOne(key string, value interface{}) (models.User, error) {
 	var result models.User
 
-	err := u.db.Get(&result, fmt.Sprintf("select * from users where %s = %v", key, value))
+	err := u.db.Get(&result, fmt.Sprintf("select * from users where %s = '%v'", key, value))
 
 	return result, err
 }

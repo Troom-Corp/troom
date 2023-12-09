@@ -12,7 +12,9 @@ func GetUserRoutes(apiRouter fiber.Router, store store.InterfaceStore) {
 	controller := controllers.GetUserControllers(store)
 
 	users := apiRouter.Group("/users", middleware.JWTMiddleware)
+
 	users.Add("GET", "", controller.SearchByQuery)
+	users.Add("GET", "/:login", controller.GetUserByLogin)
 	users.Add("POST", "/avatar", controller.SetAvatar)
 	users.Add("DELETE", "/avatar", controller.DeleteAvatar)
 	users.Add("POST", "/layout", controller.SetLayout)

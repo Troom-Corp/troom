@@ -16,6 +16,18 @@ type UserControllers struct {
 	UserServices store.InterfaceUser
 }
 
+func (u UserControllers) GetUserByLogin(c *fiber.Ctx) error {
+	login := c.Params("login")
+
+	user, err := u.UserServices.FindOne("login", login)
+
+	if err != nil {
+		return fiber.NewError(404, "Пользователь не найден")
+	}
+
+	return c.JSON(user)
+}
+
 func (u UserControllers) SearchByQuery(c *fiber.Ctx) error {
 	queries := c.Queries()
 	limit, _ := strconv.Atoi(queries["limit"])
