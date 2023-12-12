@@ -50,7 +50,7 @@ func (u user) QuerySearch(searchQuery string, limit, page int) ([]models.User, e
 		limit = 5
 	}
 
-	var queryUsers []models.User
+	queryUsers := []models.User{}
 
 	searchLogin := "%" + searchQuery + "%"
 	searchInfo := searchQuery + "%"

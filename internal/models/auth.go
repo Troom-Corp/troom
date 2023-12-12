@@ -5,13 +5,6 @@ type IsCredentials struct {
 	Email string `json:"isEmail"`
 }
 
-//func (is IsCredentials) Validate() bool {
-//	if is.Login == "" || is.Email == "" {
-//		return false
-//	}
-//	return true
-//}
-
 type SignInCredentials struct {
 	Login    string `json:"login"`
 	Password string `json:"password"`
